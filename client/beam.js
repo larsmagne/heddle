@@ -49,7 +49,11 @@ function displayGroup(group) {
 		map(roots.getElementsByTagName("A"),
 		    function(link) {
 			link.onclick = function() {
-			    insertThread(link);
+			    var old = document.getElementById(articleId(link.href));
+			    if (old)
+				removeElem(old);
+			    else 
+				insertThread(link);
 			    return false;
 			};
 		    });
@@ -62,6 +66,13 @@ function insertThread(link) {
 		var div = document.createElement("div");
 		div.className = "thread";
 		div.innerHTML = html;
+		div.id = articleId(link.href);
 		link.parentNode.insertBefore(div, link.nextSibling);
 	    });
+}
+
+function articleId(url) {
+    var regs = url.match(/[0-9]+$/);
+    if (regs)
+	return "article" + regs;
 }

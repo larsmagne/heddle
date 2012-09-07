@@ -33,10 +33,16 @@ div.thread {
     margin: 5px;
     padding: 5px;
     padding-left: 20px;
-    background-color: #f0f0ff;
+    background-color: #f8f8ff;
     border-radius: 5px;
     overflow: auto;
 }
 div.thread a {
+    float: right;
+}
+div.thread span.from {
+    font-weight: bold;
+}
+div.thread span.date {
     float: right;
 }
