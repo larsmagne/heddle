@@ -1,0 +1,6 @@
+body {
+    background-color: #8080f0;
+}
+div.searchResults a {
+    display: block;
+}
