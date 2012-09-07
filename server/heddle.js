@@ -94,20 +94,20 @@ function outputGroup(url, response) {
 	    // Find the start of each segment.
 	    var buffer = new Buffer(8);
    	    fs.read(fd, buffer, 0, 8, 0, function(err, bytesRead) {
-		var numberOfRoots = buffer.readInt32LE(0)
-		var lastArticle = buffer.readInt32LE(4)
+		var numberOfRoots = buffer.readUInt32LE(0)
+		var lastArticle = buffer.readUInt32LE(4)
 		// Find the start of the root segment.
    		fs.read(fd, buffer, 0, 8, 4 * (2 + lastArticle + page),
 			function(err, bytesRead) {
-			    var pageStart = buffer.readInt32LE(0)
-			    var pageEnd = buffer.readInt32LE(4)
+			    var pageStart = buffer.readUInt32LE(0)
+			    var pageEnd = buffer.readUInt32LE(4)
 			    util.puts(pageStart);
 			    util.puts(pageEnd);
 
 			    buffer = new Buffer(pageEnd - pageStart);
    			    fs.read(fd, buffer, 0, pageEnd - pageStart,
 				    pageStart, function(err, bytesRead) {
-					writeRoots(response, buffer);
+					writeRoots(response, buffer, group);
 				    });
 			});
 	    });
@@ -116,10 +116,48 @@ function outputGroup(url, response) {
     });
 }
 
-function writeRoots(response, buffer) {
+function writeRoots(response, buffer, group) {
+    var i = 0;
+    var length = buffer.length;
+    var char;
+    var from;
+    
     response.writeHeader(200, {"Content-Type":
 			       "text/plain; charset=utf-8"});
-    response.write(buffer, "binary");
+    while (i < length) {
+	char = 0;
+	from = "";
+	while (char != 10) {
+	    char = buffer.readUInt8(i++);
+	    if (char != 10)
+		from += String.fromCharCode(char);
+	}
+	
+	char = 0;
+	subject = "";
+	while (char != 10) {
+	    char = buffer.readUInt8(i++);
+	    if (char != 10)
+		subject += String.fromCharCode(char);
+	}
+
+	var time = buffer.readUInt32LE(i);
+	i += 8;
+
+	var article = buffer.readUInt32LE(i);
+	var rootArticle = article;
+	i += 4;
+	while (article) {
+	    var article = buffer.readUInt32LE(i);
+	    i += 4;
+	}
+	
+	response.write("<a href=\"/thread/" + group + "/" + rootArticle +
+		       "><div class=root><span class=from>" +
+		       from +
+		       "<span class=subject>" +
+		       subject + "</a>", "binary");
+    }
     response.end();
 }
 
