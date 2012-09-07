@@ -1,0 +1,20 @@
+#!/usr/bin/perl
+
+$json = "/home/larsi/src/heddle/client/groups.js";
+
+open(ACTIVE, "/home/larsi/src/heddle/data/gmane-active") || die;
+open(JSON, ">$json.tmp") || die;
+
+print JSON "\$groups = new Array(";
+
+while (<ACTIVE>) {
+    next unless /^gwene/;
+    s/^gwene.//;
+    ($group) = split;
+    print JSON "'$group',";
+}
+
+print JSON ");";
+
+close JSON;
+rename "$json.tmp", $json;
