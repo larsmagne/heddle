@@ -5,13 +5,18 @@ $json = "/home/larsi/src/heddle/client/groups.js";
 open(ACTIVE, "/home/larsi/src/heddle/data/gmane-active") || die;
 open(JSON, ">$json.tmp") || die;
 
-print JSON "\$groups = new Array(";
+print JSON "var groups = new Array(";
 
+$first = 1;
 while (<ACTIVE>) {
     next unless /^gwene/;
     s/^gwene.//;
     ($group) = split;
-    print JSON "'$group',";
+    if (! $first) {
+	print JSON ",";
+    }
+    $first = 0;
+    print JSON "'$group'";
 }
 
 print JSON ");";
