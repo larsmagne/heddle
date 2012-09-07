@@ -18,7 +18,7 @@ http.createServer(function(request, response) {
     util.puts(file);
 
     if (file == "/")
-	file = "/client/index.hml";
+	file = "/client/index.html";
     
     if (file.match(/^.client/))
 	outputStatic(file, response);
@@ -44,13 +44,20 @@ function outputStatic(file, response) {
         else {
 	  filesys.readFile(full_path, "binary", function(err, file) {
 	      if (err) {
-		response.writeHeader(500, {"Content-Type": "text/plain"});
-		response.write(err + "\n");
-		response.end();
+		  response.writeHeader(500, {"Content-Type": "text/plain"});
+		  response.write(err + "\n");
+		  response.end();
 	      } else {
-		response.writeHeader(200);
-		response.write(file, "binary");
-		response.end();
+		  if (full_path.match(/\.html$/))
+		      contentType = "text/html";
+		  else if (full_path.match(/\.css$/))
+		      contentType = "text/css";
+		  else
+		      contentType = "text/plain";
+		  response.writeHeader(200, {"Content-Type": contentType +
+					     " ;charset=utf-8"});
+		  response.write(file, "binary");
+		  response.end();
 	      }
             });
         }
