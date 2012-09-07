@@ -75,12 +75,13 @@ function outputGroup(url, response) {
     if (! regs)
 	return;
     var group = regs[1];
-    var page = regs[2];
+    var page = regs[3];
     if (! page)
 	page = 0;
+    else
+	page = parseInt(page);
 
     var warp = path.normalize(root + "/" + group.replace(/\./g, "/") + "/WARP");
-    util.puts(warp);
 
     path.exists(warp, function(exists) {
         if (! exists) {
@@ -102,8 +103,8 @@ function outputGroup(url, response) {
 		// Find the start of the root segment.
    		fs.read(fd, buffer, 0, 8, 4 * (2 + lastArticle + page),
 			function(err, bytesRead) {
-			    var pageStart = buffer.readUInt32LE(0)
-			    var pageEnd = buffer.readUInt32LE(4)
+			    var pageStart = buffer.readUInt32LE(0);
+			    var pageEnd = buffer.readUInt32LE(4);
 			    buffer = new Buffer(pageEnd - pageStart);
    			    fs.read(fd, buffer, 0, pageEnd - pageStart,
 				    pageStart, function(err, bytesRead) {
@@ -124,6 +125,7 @@ function writeRoots(response, buffer, group) {
     
     response.writeHeader(200, {"Content-Type":
 			       "text/html; charset=utf-8"});
+
     while (i < length) {
 	char = 0;
 	from = "";
