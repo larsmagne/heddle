@@ -1,3 +1,5 @@
+var root = "/home/larsi/tmp/warp";
+
 var util = require("util"),
   http = require("http"),
   path = require("path"),
@@ -62,6 +64,29 @@ function outputStatic(file, response) {
             });
         }
       });
+}
+
+function outputGroup(url, response) {
+    var regs = url.match(/\/group\/([^\/]+)(\/([0-9]+))?/);
+    if (! regs)
+	return;
+    var group = regs[1];
+    var page = regs[2];
+
+    var warp = path.normalize(root + "/" + group.replace(/\./g, "/") + "/WARP");
+    util.puts(warp);
+
+    path.exists(warp, function(exists) {
+        if (! exists) {
+	    issue404(response);
+	    return;
+	}
+	
+	response.writeHeader(200, {"Content-Type":
+				   "text/plain; charset=utf-8"});
+	//response.write(file, "binary");
+	response.end();
+    });
 }
 
 util.puts("Server Running on 8080");
