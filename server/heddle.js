@@ -31,6 +31,11 @@ http.createServer(function(request, response) {
 }).listen(8080);
 
 function outputStatic(file, response) {
+    if (file.match(/\.\./)) {
+	issue404();
+	return;
+    }
+    
     var full_path = path.join(clientPath, file);
 
     path.exists(full_path, function(exists) {
