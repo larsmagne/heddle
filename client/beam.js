@@ -12,7 +12,7 @@ function decorateHeddle() {
     map(groups, function(group) {
 	map(group.split("."), function(bit) {
 	    if (bit.length > 2)
-		for (var i = 2; i < bit.length; i++) {
+		for (var i = 2; i < bit.length + 1; i++) {
 		    var sub = "pr." + bit.substring(0, i);
 		    if (! prefixTable[sub])
 			prefixTable[sub] = new Array(group);
@@ -46,5 +46,22 @@ function displayGroup(group) {
 	    function(html) {
 		var roots = document.getElementById("roots");
 		roots.innerHTML = html;
+		map(roots.getElementsByTagName("A"),
+		    function(link) {
+			link.onclick = function() {
+			    insertThread(link);
+			    return false;
+			};
+		    });
+	    });
+}
+
+function insertThread(link) {
+    getHTML(link.href,
+	    function(html) {
+		var div = document.createElement("div");
+		div.className = "thread";
+		div.innerHTML = html;
+		link.parentNode.insertBefore(div, link.nextSibling);
 	    });
 }

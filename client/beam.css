@@ -1,12 +1,42 @@
+a {
+    font-weight: bold;
+    text-decoration: none;
+    color: #405080;
+}
 body {
-    background-color: #8080f0;
+    background-color: #b0b0f0;
+}
+div.searchResults, div.searchBar {
+    border: 1px solid black;
+    min-height: 20px;
+    margin: 5px;
+    padding: 5px;
+    background-color: #f0f0ff;
+    border-radius: 5px;
 }
 div.searchResults a {
     display: block;
 }
 div.roots {
     border: 1px solid black;
+    min-height: 20px;
+    margin: 5px;
+    padding: 5px;
+    background-color: #f0f0ff;
+    border-radius: 5px;
 }
 div.roots a {
-    display: block;
+}
+div.thread {
+    border: 1px solid black;
+    min-height: 20px;
+    margin: 5px;
+    padding: 5px;
+    padding-left: 20px;
+    background-color: #f0f0ff;
+    border-radius: 5px;
+    overflow: auto;
+}
+div.thread a {
+    float: right;
 }
