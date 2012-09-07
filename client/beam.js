@@ -32,7 +32,19 @@ function displayResults(input, results) {
 	group = "gwene." + group;
 	var a = document.createElement("a");
 	a.href = "/group/" + group;
+	a.onclick = function() {
+	    displayGroup(group);
+	    return false;
+	}
 	a.innerHTML = group;
 	results.appendChild(a);
     });
+}
+
+function displayGroup(group) {
+    getHTML("http://localhost:8080/group/" + group,
+	    function(html) {
+		var roots = document.getElementById("roots");
+		roots.innerHTML = html;
+	    });
 }

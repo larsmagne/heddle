@@ -4,3 +4,9 @@ body {
 div.searchResults a {
     display: block;
 }
+div.roots {
+    border: 1px solid black;
+}
+div.roots a {
+    display: block;
+}

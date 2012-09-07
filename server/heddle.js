@@ -123,7 +123,7 @@ function writeRoots(response, buffer, group) {
     var from;
     
     response.writeHeader(200, {"Content-Type":
-			       "text/plain; charset=utf-8"});
+			       "text/html; charset=utf-8"});
     while (i < length) {
 	char = 0;
 	from = "";
