@@ -1,10 +1,11 @@
 var root = "/home/larsi/tmp/warp";
 
 var util = require("util"),
-  http = require("http"),
-  path = require("path"),
-  url = require("url"),
-  filesys = require("fs");
+http = require("http"),
+path = require("path"),
+url = require("url"),
+fs = require("fs"),
+Buffer = require('buffer').Buffer;
 
 var clientPath = "/home/larsi/src/heddle";
 
@@ -44,7 +45,7 @@ function outputStatic(file, response) {
         if (! exists)
 	    issue404(response);
         else {
-	  filesys.readFile(full_path, "binary", function(err, file) {
+	  fs.readFile(full_path, "binary", function(err, file) {
 	      if (err) {
 		  response.writeHeader(500, {"Content-Type": "text/plain"});
 		  response.write(err + "\n");
@@ -72,6 +73,8 @@ function outputGroup(url, response) {
 	return;
     var group = regs[1];
     var page = regs[2];
+    if (! page)
+	page = 0;
 
     var warp = path.normalize(root + "/" + group.replace(/\./g, "/") + "/WARP");
     util.puts(warp);
@@ -81,12 +84,43 @@ function outputGroup(url, response) {
 	    issue404(response);
 	    return;
 	}
+
+	fs.open(warp, "r", function(err, fd) {
+	    if (err) {
+		util.puts(err);
+		return;
+	    }
+
+	    // Find the start of each segment.
+	    var buffer = new Buffer(8);
+   	    fs.read(fd, buffer, 0, 8, 0, function(err, bytesRead) {
+		var numberOfRoots = buffer.readInt32LE(0)
+		var lastArticle = buffer.readInt32LE(4)
+		// Find the start of the root segment.
+   		fs.read(fd, buffer, 0, 8, 4 * (2 + lastArticle + page),
+			function(err, bytesRead) {
+			    var pageStart = buffer.readInt32LE(0)
+			    var pageEnd = buffer.readInt32LE(4)
+			    util.puts(pageStart);
+			    util.puts(pageEnd);
+
+			    buffer = new Buffer(pageEnd - pageStart);
+   			    fs.read(fd, buffer, 0, pageEnd - pageStart,
+				    pageStart, function(err, bytesRead) {
+					writeRoots(response, buffer);
+				    });
+			});
+	    });
+	});
 	
-	response.writeHeader(200, {"Content-Type":
-				   "text/plain; charset=utf-8"});
-	//response.write(file, "binary");
-	response.end();
     });
+}
+
+function writeRoots(response, buffer) {
+    response.writeHeader(200, {"Content-Type":
+			       "text/plain; charset=utf-8"});
+    response.write(buffer, "binary");
+    response.end();
 }
 
 util.puts("Server Running on 8080");
