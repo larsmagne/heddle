@@ -1,13 +1,16 @@
 var root = "/home/larsi/tmp/warp";
+var spool = "/home/larsi/tmp/articles/";
+var clientPath = "/home/larsi/src/heddle";
+var woof = "/home/larsi/src/woof/woof";
+var cache = "/var/tmp/woof/";
 
 var util = require("util"),
 http = require("http"),
 path = require("path"),
 url = require("url"),
 fs = require("fs"),
-Buffer = require('buffer').Buffer;
-
-var clientPath = "/home/larsi/src/heddle";
+Buffer = require('buffer').Buffer,
+exec = require('child_process').exec;
 
 function issue404(response) {
     response.writeHeader(404, {"Content-Type": "text/plain"});
@@ -101,9 +104,6 @@ function outputGroup(url, response) {
 			function(err, bytesRead) {
 			    var pageStart = buffer.readUInt32LE(0)
 			    var pageEnd = buffer.readUInt32LE(4)
-			    util.puts(pageStart);
-			    util.puts(pageEnd);
-
 			    buffer = new Buffer(pageEnd - pageStart);
    			    fs.read(fd, buffer, 0, pageEnd - pageStart,
 				    pageStart, function(err, bytesRead) {
@@ -153,12 +153,104 @@ function writeRoots(response, buffer, group) {
 	}
 	
 	response.write("<a href=\"/thread/" + group + "/" + rootArticle +
-		       "><div class=root><span class=from>" +
+		       "\"><div class=root><span class=from>" +
 		       from +
 		       "<span class=subject>" +
 		       subject + "</a>", "binary");
     }
     response.end();
+}
+
+function outputThread(url, response) {
+    var regs = url.match(/\/thread\/([^\/]+)\/([0-9]+)/);
+    if (! regs)
+	return;
+    var group = regs[1];
+    var article = parseInt(regs[2]);
+
+    var warp = path.normalize(root + "/" + group.replace(/\./g, "/") + "/WARP");
+    var directory = path.normalize(spool + "/" + group.replace(/\./g, "/")
+				   + "/");
+
+    path.exists(warp, function(exists) {
+        if (! exists) {
+	    issue404(response);
+	    return;
+	}
+
+	fs.open(warp, "r", function(err, fd) {
+	    if (err) {
+		util.puts(err);
+		return;
+	    }
+
+	    // Find the start of each segment.
+	    var buffer = new Buffer(8);
+   	    fs.read(fd, buffer, 0, 8, 0, function(err, bytesRead) {
+		var numberOfRoots = buffer.readUInt32LE(0)
+		var lastArticle = buffer.readUInt32LE(4)
+		// Find the start of the root segment.
+   		fs.read(fd, buffer, 0, 4, 4 * (2 + article),
+			function(err, bytesRead) {
+			    var articleStart = buffer.readUInt32LE(0)
+			    buffer = new Buffer(1024);
+   			    fs.read(fd, buffer, 0, 1024,
+				    articleStart, function(err, bytesRead) {
+					writeThread(response, buffer, group);
+				    });
+			});
+	    });
+	});
+    });
+}
+
+function writeThread(response, buffer, group) {
+    var i = 0;
+    var length = buffer.length;
+    var char;
+    var from;
+    var groupPath = spool + group.replace(/\./g, "/") + "/";
+    
+    response.writeHeader(200, {"Content-Type":
+			       "text/html; charset=utf-8"});
+    // From
+    while (buffer.readUInt8(i++) != 10)
+	;
+	
+    // Subject
+    while (buffer.readUInt8(i++) != 10)
+	;
+
+    // Time
+    i += 8;
+
+    var articles = new Array();
+
+    var article = buffer.readUInt32LE(i);
+    var rootArticle = article;
+    articles.push(article);
+    i += 4;
+    while (article) {
+	var article = buffer.readUInt32LE(i);
+	i += 4;
+	if (article != 0)
+	    articles.push(article);
+    }
+
+    var artString = "";
+    articles.map(function(article) {
+	artString += " " + groupPath + article;
+    });
+
+    var cacheFile = cache + group.replace(/\./g, "/") + "/" + rootArticle;
+    var child = exec(woof + " " + cacheFile + " " + artString,
+		     function (error, stdout, stderr) {
+			 fs.readFile(cacheFile, "binary", function(err, file) {
+			     response.writeHeader(200, {"Content-Type": "text/html; charset=utf-8"});
+			     response.write(file, "binary");
+			     response.end();
+			 });
+		     });
 }
 
 util.puts("Server Running on 8080");
