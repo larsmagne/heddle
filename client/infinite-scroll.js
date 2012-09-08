@@ -53,7 +53,7 @@
     
     // Find the pageHeight and clientHeight(the no. of pixels to scroll to make the scrollbar reach max pos)
     var pageHeight = document.documentElement.scrollHeight;
-    var clientHeight = document.documentElement.scrollWidth;
+    var clientHeight = windowHeight();
     
     // Check if scroll bar position is just 50px above the max, if yes, initiate an update
     if (pageHeight - (scrollPos + clientHeight) < scroller.options.distance) {
