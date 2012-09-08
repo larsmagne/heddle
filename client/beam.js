@@ -37,8 +37,8 @@ function decorateHeddle() {
 			roots.innerHTML += html;
 			decorateGroupLinks(roots);
 			roots.setAttribute("page", page);
+			done();
 		    });
-	    done();
 	}
     });
 }
