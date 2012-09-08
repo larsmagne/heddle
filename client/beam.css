@@ -33,6 +33,8 @@ div.thread {
     padding-left: 20px;
     background-color: #5ed1ba;
     border-radius: 5px;
+}
+div.article {
     overflow: auto;
 }
 div.thread a {
