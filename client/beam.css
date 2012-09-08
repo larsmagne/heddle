@@ -18,6 +18,7 @@ div.searchResults, div.searchBar, div.roots {
     padding: 5px;
     background-color: #f0f0f0;
     border-radius: 5px;
+    overflow: auto;
 }
 div.searchResults a {
     display: block;
@@ -49,4 +50,9 @@ div.thread span.date {
 }
 div.thread a.permalink {
     float: right;
+}
+div.logo {
+    float: right;
+    padding: 5px;
+    padding-left: 10px;
 }
