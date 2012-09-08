@@ -135,7 +135,7 @@ function insertThread(link) {
 function addPermalink(div, url) {
     var link = document.createElement("a");
     link.href = url;
-    link.innerHTML = "<img src=\"/client/link.png\">";
+    link.innerHTML = "&nbsp;⛢";
     link.className = "permalink";
     var inner = getChildOfType(div, "DIV");
     inner.insertBefore(link, inner.childNodes[0]);

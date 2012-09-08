@@ -50,6 +50,7 @@ div.thread span.date {
 }
 div.thread a.permalink {
     float: right;
+    font-weight: bold;
 }
 div.logo {
     float: right;
