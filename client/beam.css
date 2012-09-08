@@ -1,29 +1,25 @@
+/* 00A383	1F7A68	006A55	34D1B2	5ED1BA
+   FF6400	BF6830	A64100	FF8B40	FFAA73
+   */
+
 a {
     font-weight: bold;
     text-decoration: none;
-    color: #405080;
+    color: #006a55;
 }
 body {
-    background-color: #b0b0f0;
+    background-color: #006a55;
 }
-div.searchResults, div.searchBar {
+div.searchResults, div.searchBar, div.roots {
     border: 1px solid black;
     min-height: 20px;
     margin: 5px;
     padding: 5px;
-    background-color: #f0f0ff;
+    background-color: #ffaa73;
     border-radius: 5px;
 }
 div.searchResults a {
     display: block;
-}
-div.roots {
-    border: 1px solid black;
-    min-height: 20px;
-    margin: 5px;
-    padding: 5px;
-    background-color: #f0f0ff;
-    border-radius: 5px;
 }
 div.roots a {
 }
@@ -33,7 +29,7 @@ div.thread {
     margin: 5px;
     padding: 5px;
     padding-left: 20px;
-    background-color: #f8f8ff;
+    background-color: #5ED1BA;
     border-radius: 5px;
     overflow: auto;
 }
