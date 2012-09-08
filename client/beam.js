@@ -165,7 +165,7 @@ function addThumbnail(div, url) {
   link.onclick = function() {
     window.open(link.href, '_blank');
     window.focus();
-      return false;
+    return false;
   };
   image.onload = function() {
     link.innerHTML =
