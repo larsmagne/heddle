@@ -154,11 +154,15 @@ function writeRoots(response, buffer, group) {
 
 	var article = buffer.readUInt32LE(i);
 	var rootArticle = article;
+	var comments = 0;
 	i += 4;
 	while (article) {
 	    var article = buffer.readUInt32LE(i);
 	    i += 4;
+	    comments++;
 	}
+	// Zero-terminated list of articles.
+	comments--;
 	
 	response.write("<div class=root>");
 	if (from.length > 0)
@@ -167,6 +171,8 @@ function writeRoots(response, buffer, group) {
 		       "\">" +
 		       "<span class=subject>" +
 		       subject + "</a>", "binary");
+	if (comments > 0)
+	    response.write("<span class=comments>" + comments + " comments");
     }
     response.end();
 }
