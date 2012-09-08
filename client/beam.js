@@ -123,31 +123,50 @@ function insertThread(link) {
 		var div = document.createElement("div");
 		div.className = "thread";
 		div.innerHTML = html;
-		addPermalink(div, link.href);
-		div.id = articleId(link.href);
-		var next = link.nextSibling;
-		if (next.className == "comments")
-		    next = next.nextSibling;
-		link.parentNode.insertBefore(div, next);
+		var first = true;
 		map(div.getElementsByTagName("A"),
 		    function(link) {
+			if (first && link.href.match(/^http/)) {
+			    first = false;
+			    addThumbnail(div, link.href);
+			}
 			link.onclick = function() {
 			    window.open(link.href, '_blank');
 			    window.focus();
 			    return false;
 			};
 		    });
+		addPermalink(div, link.href);
+		div.id = articleId(link.href);
+		var next = link.nextSibling;
+		if (next.className == "comments")
+		    next = next.nextSibling;
+		link.parentNode.insertBefore(div, next);
 	    });
 }
 
 function addPermalink(div, url) {
     var link = document.createElement("a");
     link.href = url;
-    link.innerHTML = "&nbsp;⛢";
+    link.innerHTML = "&nbsp;☉";
     link.className = "permalink";
     link.title = "Permalink";
     var inner = getChildOfType(div, "DIV");
     inner.insertBefore(link, inner.childNodes[0]);
+}
+
+function addThumbnail(div, url) {
+    var image = new Image();
+    image.src = "http://immediatenet.com/t/m?Size=1024x768&URL=" + url;
+    image.onload = function() {
+	var link = document.createElement("a");
+	link.innerHTML =
+	    "<img src=\"http://immediatenet.com/t/m?Size=1024x768&URL=" +
+	    url + "\">";
+	link.href = url;
+	link.className = "thumbnail";
+	div.insertBefore(link, div.childNodes[0]);
+    };
 }
 
 function articleId(url) {
