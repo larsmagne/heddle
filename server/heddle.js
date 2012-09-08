@@ -100,6 +100,12 @@ function outputGroup(url, response) {
    	    fs.read(fd, buffer, 0, 8, 0, function(err, bytesRead) {
 		var numberOfRoots = buffer.readUInt32LE(0)
 		var lastArticle = buffer.readUInt32LE(4)
+
+		if (page + 2 > numberOfRoots / 30) {
+		    issue404(response);
+		    return;
+		}
+
 		// Find the start of the root segment.
    		fs.read(fd, buffer, 0, 8, 4 * (2 + lastArticle + page),
 			function(err, bytesRead) {
@@ -193,10 +199,14 @@ function outputThread(url, response) {
    	    fs.read(fd, buffer, 0, 8, 0, function(err, bytesRead) {
 		var numberOfRoots = buffer.readUInt32LE(0)
 		var lastArticle = buffer.readUInt32LE(4)
+		if (article > lastArticle) {
+		    issue404(response);
+		    return;
+		}
 		// Find the start of the root segment.
    		fs.read(fd, buffer, 0, 4, 4 * (2 + article),
 			function(err, bytesRead) {
-			    var articleStart = buffer.readUInt32LE(0)
+			    var articleStart = buffer.readUInt32LE(0);
 			    buffer = new Buffer(1024);
    			    fs.read(fd, buffer, 0, 1024,
 				    articleStart, function(err, bytesRead) {
@@ -249,6 +259,10 @@ function writeThread(response, buffer, group) {
     var cacheFile = cache + group.replace(/\./g, "/") + "/" + rootArticle;
     var child = exec(woof + " " + cacheFile + " " + artString,
 		     function (error, stdout, stderr) {
+			 if (error) {
+			     issue404(response);
+			     return;
+			 }
 			 fs.readFile(cacheFile, "binary", function(err, file) {
 			     response.writeHeader(200, {"Content-Type": "text/html; charset=utf-8"});
 			     response.write(file, "binary");
