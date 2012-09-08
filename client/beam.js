@@ -23,33 +23,43 @@ function decorateHeddle() {
     });
 
     addInfiniteScroll();
+    checkPageSize();
 }
 
 function addInfiniteScroll() {
     // setup infinite scroll
     infiniteScroll({
 	distance: 50,
-	callback: function(done) {
-	    var roots = document.getElementById("roots");
-	    var page = parseInt(roots.getAttribute("page")) + 1;
-	    var group = roots.getAttribute("group");
-	    if (! group)
-		return;
-	    getHTML("http://localhost:8080/group/" + group + "/" +
-		    page + "/naked",
-		    function(html) {
-			var div = document.createElement("div");
-			div.innerHTML = html;
-			decorateGroupLinks(div);
-			map(div.childNodes,
-			    function(node) {
-				roots.appendChild(node);
-			    });
-			roots.setAttribute("page", page);
-			done();
-		    });
-	}
+	callback: extendGroupPage
     });
+}
+
+function extendGroupPage(done) {
+    var roots = document.getElementById("roots");
+    var page = parseInt(roots.getAttribute("page")) + 1;
+    var group = roots.getAttribute("group");
+    if (! group)
+	return;
+    getHTML("http://localhost:8080/group/" + group + "/" +
+	    page + "/naked",
+	    function(html) {
+		var div = document.createElement("div");
+		div.innerHTML = html;
+		decorateGroupLinks(div);
+		map(div.childNodes,
+		    function(node) {
+			roots.appendChild(node);
+		    });
+		roots.setAttribute("page", page);
+		if (done)
+		    done();
+		checkPageSize();
+	    });
+}
+
+function checkPageSize() {
+    if (documentHeight() <= windowHeight())
+	extendGroupPage();
 }
 
 function displayResults(input, results) {
@@ -78,6 +88,7 @@ function displayGroup(group) {
 		decorateGroupLinks(roots);
 		roots.setAttribute("group", group);
 		roots.setAttribute("page", 0);
+		checkPageSize();
 	    });
 }
 
@@ -87,6 +98,7 @@ function decorateGroup(group) {
     roots.setAttribute("page", 0);
     roots.setAttribute("group", group);
     addInfiniteScroll();
+    checkPageSize();
 }
 
 function decorateGroupLinks(roots) {
