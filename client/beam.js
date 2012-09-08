@@ -145,6 +145,7 @@ function addPermalink(div, url) {
     link.href = url;
     link.innerHTML = "&nbsp;⛢";
     link.className = "permalink";
+    link.title = "Permalink";
     var inner = getChildOfType(div, "DIV");
     inner.insertBefore(link, inner.childNodes[0]);
 }
