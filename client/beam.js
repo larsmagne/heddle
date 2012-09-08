@@ -166,6 +166,11 @@ function addThumbnail(div, url) {
 	link.href = url;
 	link.className = "thumbnail";
 	div.insertBefore(link, div.childNodes[0]);
+	link.onclick = function() {
+	    window.open(link.href, '_blank');
+	    window.focus();
+	    return false;
+	};
     };
 }
 
