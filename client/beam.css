@@ -5,7 +5,7 @@
 a {
     font-weight: bold;
     text-decoration: none;
-    color: black;
+    color: #006a55;
 }
 body {
     background-color: #006a55;
@@ -16,7 +16,7 @@ div.searchResults, div.searchBar, div.roots {
     min-height: 20px;
     margin: 5px;
     padding: 5px;
-    background-color: #34D1B2;
+    background-color: #f0f0f0;
     border-radius: 5px;
 }
 div.searchResults a {
