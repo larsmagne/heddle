@@ -7,24 +7,24 @@ CD0074	992667	85004B	E6399B	E667AF
 a {
     font-weight: bold;
     text-decoration: none;
-    color: #85004b;
+    color: black;
 }
 body {
-    background-color: #006a55;
+    background-color: black;
     font-family: sans-serif, arial, verdana;
     max-width: 1200px;
     padding: 10px;
 }
 div.thread span.from {
     font-weight: bold;
-    color: #A64B00;
+    color: #000080;
 }
 div.searchResults, div.searchBar, div.roots {
     border: 0px solid black;
     min-height: 20px;
     margin: 5px;
     padding: 10px;
-    background-color: #ffb273;
+    background-color: #f0f0f0;
     overflow: auto;
 }
 div.thread {
@@ -32,8 +32,7 @@ div.thread {
     min-height: 20px;
     margin: 5px;
     padding: 5px;
-    background-color: #96D496;
-    /* border-radius: 5px; */
+    background-color: #ffffff;
     overflow: auto;
 }
 div.searchResults a {
