@@ -158,19 +158,19 @@ function addPermalink(div, url) {
 function addThumbnail(div, url) {
   var image = new Image();
   image.src = "http://immediatenet.com/t/m?Size=1024x768&URL=" + url;
+  var link = document.createElement("a");
+  link.href = url;
+  link.className = "thumbnail";
+  div.insertBefore(link, div.childNodes[0]);
+  link.onclick = function() {
+    window.open(link.href, '_blank');
+    window.focus();
+      return false;
+  };
   image.onload = function() {
-    var link = document.createElement("a");
     link.innerHTML =
       "<img src=\"http://immediatenet.com/t/m?Size=1024x768&URL=" +
       url + "\">";
-    link.href = url;
-    link.className = "thumbnail";
-    div.insertBefore(link, div.childNodes[0]);
-    link.onclick = function() {
-      window.open(link.href, '_blank');
-      window.focus();
-      return false;
-    };
   };
 }
 
