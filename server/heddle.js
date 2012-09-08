@@ -166,13 +166,13 @@ function writeRoots(response, buffer, group) {
 	
 	response.write("<div class=root>");
 	if (from.length > 0)
-	    response.write("<span class=from>" + from + ": ");
+	    response.write("<span class=from>" + from + "</span>: ");
 	response.write("<a href=\"/thread/" + group + "/" + rootArticle +
 		       "\">" +
 		       "<span class=subject>" +
-		       subject + "</a>", "binary");
+		       subject + "</span></a>", "binary");
 	if (comments > 0)
-	    response.write("<span class=comments>" + comments + " comments");
+	    response.write("<span class=comments>" + comments + " comments</span>");
     }
     response.end();
 }
