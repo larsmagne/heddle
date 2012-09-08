@@ -1,24 +1,39 @@
-/* 00A383	1F7A68	006A55	34D1B2	5ED1BA
-   FF6400	BF6830	A64100	FF8B40	FFAA73
-   */
+/* 			
+00CC00	269926	008500	39E639	67E667
+FF7400	BF7130	A64B00	FF9640	FFB273
+CD0074	992667	85004B	E6399B	E667AF
+*/
 
 a {
     font-weight: bold;
     text-decoration: none;
-    color: #006a55;
+    color: #85004b;
 }
 body {
     background-color: #006a55;
     font-family: sans-serif, arial, verdana;
     max-width: 1200px;
+    padding: 10px;
+}
+div.thread span.from {
+    font-weight: bold;
+    color: #A64B00;
 }
 div.searchResults, div.searchBar, div.roots {
-    border: 1px solid black;
+    border: 0px solid black;
+    min-height: 20px;
+    margin: 5px;
+    padding: 10px;
+    background-color: #ffb273;
+    overflow: auto;
+}
+div.thread {
+    border: 0px solid black;
     min-height: 20px;
     margin: 5px;
     padding: 5px;
-    background-color: #f0f0f0;
-    border-radius: 5px;
+    background-color: #96D496;
+    /* border-radius: 5px; */
     overflow: auto;
 }
 div.searchResults a {
@@ -26,25 +41,11 @@ div.searchResults a {
 div.roots span.comments {
     padding-left: 10px;
 }
-div.thread {
-    border: 1px solid black;
-    min-height: 20px;
-    margin: 5px;
-    padding: 5px;
-    padding-left: 20px;
-    background-color: #5ed1ba;
-    border-radius: 5px;
-    overflow: auto;
-}
 div.article {
     overflow: auto;
 }
 div.thread a {
     float: right;
-}
-div.thread span.from {
-    font-weight: bold;
-    color: #FF6400;
 }
 div.thread span.date {
     float: right;
@@ -56,6 +57,6 @@ div.thread a.permalink {
 div.logo {
     float: right;
     padding: 5px;
-    padding-left: 10px;
+    padding-left: 20px;
     height: 100%;
 }
