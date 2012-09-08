@@ -21,6 +21,26 @@ function decorateHeddle() {
 		}
 	});
     });
+
+    // setup infinite scroll
+    infiniteScroll({
+	distance: 50,
+	callback: function(done) {
+	    console.log("scrolling");
+	    var roots = document.getElementById("roots");
+	    var page = parseInt(roots.getAttribute("page")) + 1;
+	    var group = roots.getAttribute("group");
+	    if (! group)
+		return;
+	    getHTML("http://localhost:8080/group/" + group + "/" + page,
+		    function(html) {
+			roots.innerHTML += html;
+			decorateGroupLinks(roots);
+			roots.setAttribute("page", page);
+		    });
+	    done();
+	}
+    });
 }
 
 function displayResults(input, results) {
@@ -46,18 +66,26 @@ function displayGroup(group) {
 	    function(html) {
 		var roots = document.getElementById("roots");
 		roots.innerHTML = html;
-		map(roots.getElementsByTagName("A"),
-		    function(link) {
-			link.onclick = function() {
-			    var old = document.getElementById(articleId(link.href));
-			    if (old)
-				removeElem(old);
-			    else 
-				insertThread(link);
-			    return false;
-			};
-		    });
+		decorateGroupLinks(roots);
+		roots.setAttribute("group", group);
+		roots.setAttribute("page", 0);
 	    });
+}
+
+function decorateGroupLinks(roots) {
+    map(roots.getElementsByTagName("A"),
+	function(link) {
+	    if (link.onclick)
+		return;
+	    link.onclick = function() {
+		var old = document.getElementById(articleId(link.href));
+		if (old)
+		    removeElem(old);
+		else 
+		    insertThread(link);
+		return false;
+	    };
+	});
 }
 
 function insertThread(link) {
@@ -76,3 +104,4 @@ function articleId(url) {
     if (regs)
 	return "article" + regs;
 }
+
