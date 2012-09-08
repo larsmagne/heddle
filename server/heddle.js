@@ -71,11 +71,12 @@ function outputStatic(file, response) {
 }
 
 function outputGroup(url, response) {
-    var regs = url.match(/\/group\/([^\/]+)(\/([0-9]+))?/);
+    var regs = url.match(/\/group\/([^\/]+)(\/([0-9]+)(\/naked)?)?/);
     if (! regs)
 	return;
     var group = regs[1];
     var page = regs[3];
+    var naked = regs[4];
     if (! page)
 	page = 0;
     else
@@ -114,7 +115,8 @@ function outputGroup(url, response) {
 			    buffer = new Buffer(pageEnd - pageStart);
    			    fs.read(fd, buffer, 0, pageEnd - pageStart,
 				    pageStart, function(err, bytesRead) {
-					writeRoots(response, buffer, group);
+					writeRoots(response, buffer,
+   						   group, naked);
 				    });
 			});
 	    });
@@ -123,7 +125,7 @@ function outputGroup(url, response) {
     });
 }
 
-function writeRoots(response, buffer, group) {
+function writeRoots(response, buffer, group, naked) {
     var i = 0;
     var length = buffer.length;
     var char;
@@ -131,6 +133,9 @@ function writeRoots(response, buffer, group) {
     
     response.writeHeader(200, {"Content-Type":
 			       "text/html; charset=utf-8"});
+
+    if (! naked)
+	writeFile(path.join(clientPath, "client/group.html"), response);
 
     while (i < length) {
 	char = 0;
@@ -174,15 +179,17 @@ function writeRoots(response, buffer, group) {
 	if (comments > 0)
 	    response.write("<span class=comments>" + comments + " comments</span>");
     }
+    response.write("<script>decorateGroup();</script>");
     response.end();
 }
 
 function outputThread(url, response) {
-    var regs = url.match(/\/thread\/([^\/]+)\/([0-9]+)/);
+    var regs = url.match(/\/thread\/([^\/]+)\/([0-9]+)(\/naked)?/);
     if (! regs)
 	return;
     var group = regs[1];
     var article = parseInt(regs[2]);
+    var naked = regs[3];
 
     var warp = path.normalize(root + "/" + group.replace(/\./g, "/") + "/WARP");
     var directory = path.normalize(spool + "/" + group.replace(/\./g, "/")
@@ -216,7 +223,8 @@ function outputThread(url, response) {
 			    buffer = new Buffer(1024);
    			    fs.read(fd, buffer, 0, 1024,
 				    articleStart, function(err, bytesRead) {
-					writeThread(response, buffer, group);
+					writeThread(response, buffer,
+						    group, naked);
 				    });
 			});
 	    });
@@ -224,7 +232,7 @@ function outputThread(url, response) {
     });
 }
 
-function writeThread(response, buffer, group) {
+function writeThread(response, buffer, group, naked) {
     var i = 0;
     var length = buffer.length;
     var char;
@@ -269,12 +277,18 @@ function writeThread(response, buffer, group) {
 			     issue404(response);
 			     return;
 			 }
+			 response.writeHeader(200, {"Content-Type": "text/html; charset=utf-8"});
+			 if (! naked)
+			     writeFile(path.join(clientPath, "client/thread.html"), response);
 			 fs.readFile(cacheFile, "binary", function(err, file) {
-			     response.writeHeader(200, {"Content-Type": "text/html; charset=utf-8"});
 			     response.write(file, "binary");
 			     response.end();
 			 });
 		     });
+}
+
+function writeFile(fpath, response) {
+    response.write(fs.readFileSync(fpath, "binary"), "binary");
 }
 
 util.puts("Server Running on 8080");

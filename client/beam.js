@@ -31,7 +31,8 @@ function decorateHeddle() {
 	    var group = roots.getAttribute("group");
 	    if (! group)
 		return;
-	    getHTML("http://localhost:8080/group/" + group + "/" + page,
+	    getHTML("http://localhost:8080/group/" + group + "/" +
+		    page + "/naked",
 		    function(html) {
 			var div = document.createElement("div");
 			div.innerHTML = html;
@@ -66,7 +67,7 @@ function displayResults(input, results) {
 }
 
 function displayGroup(group) {
-    getHTML("http://localhost:8080/group/" + group,
+    getHTML("http://localhost:8080/group/" + group + "/0/naked",
 	    function(html) {
 		var roots = document.getElementById("roots");
 		roots.innerHTML = html;
@@ -74,6 +75,10 @@ function displayGroup(group) {
 		roots.setAttribute("group", group);
 		roots.setAttribute("page", 0);
 	    });
+}
+
+function decorateGroup() {
+    decorateGroupLinks(document.getElementById("roots"));
 }
 
 function decorateGroupLinks(roots) {
@@ -93,7 +98,7 @@ function decorateGroupLinks(roots) {
 }
 
 function insertThread(link) {
-    getHTML(link.href,
+    getHTML(link.href + "/naked",
 	    function(html) {
 		var div = document.createElement("div");
 		div.className = "thread";
