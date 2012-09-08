@@ -47,3 +47,6 @@ div.thread span.from {
 div.thread span.date {
     float: right;
 }
+div.thread a.permalink {
+    float: right;
+}

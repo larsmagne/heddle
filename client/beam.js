@@ -125,7 +125,8 @@ function addPermalink(div, url) {
     link.href = url;
     link.innerHTML = "<img src=\"/client/link.png\">";
     link.className = "permalink";
-    div.insertBefore(link, div.childNodes[0]);
+    var inner = getChildOfType(div, "DIV");
+    inner.insertBefore(link, inner.childNodes[0]);
 }
 
 function articleId(url) {
