@@ -26,7 +26,6 @@ function decorateHeddle() {
     infiniteScroll({
 	distance: 50,
 	callback: function(done) {
-	    console.log("scrolling");
 	    var roots = document.getElementById("roots");
 	    var page = parseInt(roots.getAttribute("page")) + 1;
 	    var group = roots.getAttribute("group");
@@ -34,8 +33,13 @@ function decorateHeddle() {
 		return;
 	    getHTML("http://localhost:8080/group/" + group + "/" + page,
 		    function(html) {
-			roots.innerHTML += html;
-			decorateGroupLinks(roots);
+			var div = document.createElement("div");
+			div.innerHTML = html;
+			decorateGroupLinks(div);
+			map(div.childNodes,
+			    function(node) {
+				roots.appendChild(node);
+			    });
 			roots.setAttribute("page", page);
 			done();
 		    });
