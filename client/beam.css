@@ -5,23 +5,25 @@
 a {
     font-weight: bold;
     text-decoration: none;
-    color: #006a55;
+    color: black;
 }
 body {
     background-color: #006a55;
+    font-family: sans-serif, arial, verdana;
 }
 div.searchResults, div.searchBar, div.roots {
     border: 1px solid black;
     min-height: 20px;
     margin: 5px;
     padding: 5px;
-    background-color: #ffaa73;
+    background-color: #34D1B2;
     border-radius: 5px;
 }
 div.searchResults a {
     display: block;
 }
-div.roots a {
+div.roots span.comments {
+    padding-left: 10px;
 }
 div.thread {
     border: 1px solid black;
@@ -29,7 +31,7 @@ div.thread {
     margin: 5px;
     padding: 5px;
     padding-left: 20px;
-    background-color: #5ED1BA;
+    background-color: #5ed1ba;
     border-radius: 5px;
     overflow: auto;
 }
@@ -37,7 +39,7 @@ div.thread a {
     float: right;
 }
 div.thread span.from {
-    font-weight: bold;
+    font-weight: normal;
 }
 div.thread span.date {
     float: right;
