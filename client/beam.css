@@ -30,8 +30,8 @@ div.searchResults, div.searchBar, div.roots {
 div.thread {
     border: 0px solid black;
     min-height: 20px;
-    margin: 5px;
-    padding: 5px;
+    margin: 10px;
+    padding: 10px;
     background-color: #ffffff;
     overflow: auto;
 }
