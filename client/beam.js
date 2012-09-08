@@ -22,6 +22,10 @@ function decorateHeddle() {
 	});
     });
 
+    addInfiniteScroll();
+}
+
+function addInfiniteScroll() {
     // setup infinite scroll
     infiniteScroll({
 	distance: 50,
@@ -77,8 +81,12 @@ function displayGroup(group) {
 	    });
 }
 
-function decorateGroup() {
-    decorateGroupLinks(document.getElementById("roots"));
+function decorateGroup(group) {
+    var roots = document.getElementById("roots");
+    decorateGroupLinks(roots);
+    roots.setAttribute("page", 0);
+    roots.setAttribute("group", group);
+    addInfiniteScroll();
 }
 
 function decorateGroupLinks(roots) {
@@ -103,12 +111,21 @@ function insertThread(link) {
 		var div = document.createElement("div");
 		div.className = "thread";
 		div.innerHTML = html;
+		addPermalink(div, link.href);
 		div.id = articleId(link.href);
 		var next = link.nextSibling;
 		if (next.className == "comments")
 		    next = next.nextSibling;
 		link.parentNode.insertBefore(div, next);
 	    });
+}
+
+function addPermalink(div, url) {
+    var link = document.createElement("a");
+    link.href = url;
+    link.innerHTML = "<img src=\"/client/link.png\">";
+    link.className = "permalink";
+    div.insertBefore(link, div.childNodes[0]);
 }
 
 function articleId(url) {

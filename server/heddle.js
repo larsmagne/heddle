@@ -58,6 +58,8 @@ function outputStatic(file, response) {
 		      contentType = "text/html";
 		  else if (full_path.match(/\.css$/))
 		      contentType = "text/css";
+		  else if (full_path.match(/\.png$/))
+		      contentType = "image/png";
 		  else
 		      contentType = "text/plain";
 		  response.writeHeader(200, {"Content-Type": contentType +
@@ -179,7 +181,7 @@ function writeRoots(response, buffer, group, naked) {
 	if (comments > 0)
 	    response.write("<span class=comments>" + comments + " comments</span>");
     }
-    response.write("<script>decorateGroup();</script>");
+    response.write("<script>decorateGroup(\"" + group + "\");</script>");
     response.end();
 }
 
