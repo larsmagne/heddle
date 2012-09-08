@@ -95,7 +95,10 @@ function insertThread(link) {
 		div.className = "thread";
 		div.innerHTML = html;
 		div.id = articleId(link.href);
-		link.parentNode.insertBefore(div, link.nextSibling);
+		var next = link.nextSibling;
+		if (next.className == "comments")
+		    next = next.nextSibling;
+		link.parentNode.insertBefore(div, next);
 	    });
 }
 
