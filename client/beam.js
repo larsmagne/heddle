@@ -129,6 +129,14 @@ function insertThread(link) {
 		if (next.className == "comments")
 		    next = next.nextSibling;
 		link.parentNode.insertBefore(div, next);
+		map(div.getElementsByTagName("A"),
+		    function(link) {
+			link.onclick = function() {
+			    window.open(link.href, '_blank');
+			    window.focus();
+			    return false;
+			};
+		    });
 	    });
 }
 
