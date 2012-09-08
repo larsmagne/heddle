@@ -58,7 +58,7 @@ function extendGroupPage(done) {
 }
 
 function checkPageSize() {
-    if (documentHeight() <= windowHeight())
+    if (documentHeight() - 50 < windowHeight())
 	extendGroupPage();
 }
 
