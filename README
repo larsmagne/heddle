@@ -1,0 +1,7 @@
+heddle is the Gwene web interface.
+
+Is reads the index files created by warp, and uses woof to output the
+contents of the articles.
+
+The backend is written for Node.js, and the web pages are mainly
+Javascript.

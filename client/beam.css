@@ -39,7 +39,8 @@ div.thread a {
     float: right;
 }
 div.thread span.from {
-    font-weight: normal;
+    font-weight: bold;
+    color: #FF6400;
 }
 div.thread span.date {
     float: right;
