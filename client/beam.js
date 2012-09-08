@@ -75,7 +75,7 @@ function displayResults(input, results) {
 	    displayGroup(group);
 	    return false;
 	}
-	a.innerHTML = group;
+	a.innerHTML = group + "<br>";
 	results.appendChild(a);
     });
 }

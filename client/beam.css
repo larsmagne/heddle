@@ -10,6 +10,7 @@ a {
 body {
     background-color: #006a55;
     font-family: sans-serif, arial, verdana;
+    max-width: 1200px;
 }
 div.searchResults, div.searchBar, div.roots {
     border: 1px solid black;
@@ -21,7 +22,6 @@ div.searchResults, div.searchBar, div.roots {
     overflow: auto;
 }
 div.searchResults a {
-    display: block;
 }
 div.roots span.comments {
     padding-left: 10px;
@@ -57,4 +57,5 @@ div.logo {
     float: right;
     padding: 5px;
     padding-left: 10px;
+    height: 100%;
 }
