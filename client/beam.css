@@ -5,7 +5,7 @@ a {
 }
 body {
     background-color: black;
-    font-family: sans-serif, arial, verdana;
+    font-family: verdana, arial, sans-serif;
     max-width: 1200px;
     padding: 10px;
 }
