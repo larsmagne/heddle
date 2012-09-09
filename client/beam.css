@@ -1,9 +1,3 @@
-/* 			
-00CC00	269926	008500	39E639	67E667
-FF7400	BF7130	A64B00	FF9640	FFB273
-CD0074	992667	85004B	E6399B	E667AF
-*/
-
 a {
     font-weight: bold;
     text-decoration: none;
@@ -20,7 +14,6 @@ div.thread span.from {
     color: #c00000;
 }
 div.searchResults, div.searchBar, div.roots {
-    border: 0px solid black;
     min-height: 20px;
     margin: 5px;
     padding: 10px;
@@ -28,14 +21,11 @@ div.searchResults, div.searchBar, div.roots {
     overflow: auto;
 }
 div.thread {
-    border: 0px solid black;
     min-height: 20px;
     margin: 10px;
     padding: 10px;
     background-color: #ffffff;
     overflow: auto;
-}
-div.searchResults a {
 }
 div.roots span.comments {
     padding-left: 10px;
