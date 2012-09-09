@@ -194,7 +194,6 @@ function removeElem (elem) {
   if (elem) {
     if (elem.parentNode)
       elem.parentNode.removeChild(elem);
-    discardElem(elem);
   }
 }
 
