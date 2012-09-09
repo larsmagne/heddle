@@ -26,14 +26,19 @@ http.createServer(function(request, response) {
   if (file == "/")
     file = "/client/index.html";
 
-  if (file.match(/^.client/))
-    outputStatic(file, response);
-  else if (file.match(/^.group/))
-    outputGroup(file, response);
-  else if (file.match(/^.thread/))
-    outputThread(file, response);
-  else
-    issue404(response);
+  try {
+    if (file.match(/^.client/))
+      outputStatic(file, response);
+    else if (file.match(/^.group/))
+      outputGroup(file, response);
+    else if (file.match(/^.thread/))
+      outputThread(file, response);
+    else
+      issue404(response);
+    } catch(err) {
+      util.puts("Error: "+ err);
+      response.end();
+    }
 }).listen(8080);
 
 function outputStatic(file, response) {
