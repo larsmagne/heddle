@@ -13,8 +13,8 @@ Buffer = require('buffer').Buffer,
 exec = require('child_process').exec;
 
 process.on('uncaughtException', function(err) {
-	console.log(err);
-    });
+  console.log(err);
+});
 
 function issue404(response) {
   response.writeHeader(404, {"Content-Type": "text/plain"});
@@ -39,10 +39,10 @@ http.createServer(function(request, response) {
       outputThread(file, response);
     else
       issue404(response);
-    } catch(err) {
-      util.puts("Error: "+ err);
-      response.end();
-    }
+  } catch(err) {
+    util.puts("Error: "+ err);
+    response.end();
+  }
 }).listen(8080);
 
 function outputStatic(file, response) {
