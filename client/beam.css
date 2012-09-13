@@ -49,6 +49,9 @@ div.logo {
     padding-left: 20px;
     height: 100%;
 }
+div.logo img {
+   border: 0px;
+}
 a.thumbnail {
     padding-left: 10px;
     width: 154px;
