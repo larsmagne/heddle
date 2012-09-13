@@ -323,10 +323,10 @@ function outputThumbnail(file, response) {
   }
   var url = regs[1];
   var cache = "/cache/thumbnail" + thumbnailCache(url);
-  thumbnails++;
   util.puts("Number of thumbnails running: " + thumbnails);
   fs.exists(cache, function(exists) {
     if (! exists) {
+      thumbnails++;
       cp.execFile(thumbnail, [url, cache],
 		  function(err, stdout, stderr) {
 		    thumbnails--;
