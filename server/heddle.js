@@ -2,6 +2,7 @@ var root = "/cache/warp";
 var spool = "/var/spool/news/articles/";
 var clientPath = "/home/larsi/src/heddle";
 var woof = "/home/larsi/src/woof/woof";
+var thumbnail = "/home/larsi/src/heddle/bin/thumbnail";
 var cache = "/cache/woof/";
 
 var util = require("util"),
@@ -10,7 +11,10 @@ path = require("path"),
 url = require("url"),
 fs = require("fs"),
 Buffer = require('buffer').Buffer,
-exec = require('child_process').exec;
+cp = require('child_process'),
+crypto = require('crypto');
+
+var thumbnails = 0;
 
 process.on('uncaughtException', function(err) {
   console.log(err);
@@ -31,12 +35,14 @@ http.createServer(function(request, response) {
     file = "/client/index.html";
 
   try {
-    if (file.match(/^.client/))
+    if (file.match(/^\/client/))
       outputStatic(file, response);
-    else if (file.match(/^.group/))
+    else if (file.match(/^\/group/))
       outputGroup(file, response);
-    else if (file.match(/^.thread/))
+    else if (file.match(/^\/thread/))
       outputThread(file, response);
+    else if (file.match(/^\/thumbnail/))
+      outputThumbnail(file, response);
     else
       issue404(response);
   } catch(err) {
@@ -289,25 +295,76 @@ function writeThread(response, buffer, group, naked) {
   });
 
   var cacheFile = cache + group.replace(/\./g, "/") + "/" + rootArticle;
-  var child = exec(woof + " " + cacheFile + " " + artString,
-		   function (error, stdout, stderr) {
-		     if (error) {
-		       util.puts(error);
-		       issue404(response);
-		       return;
-		     }
-		     response.writeHeader(200, {"Content-Type": "text/html; charset=utf-8"});
-		     if (! naked)
-		       writeFile(path.join(clientPath, "client/thread.html"), response);
-		     fs.readFile(cacheFile, "binary", function(err, file) {
-		       response.write(file, "binary");
-		       response.end();
-		     });
-		   });
+  cp.exec(woof + " " + cacheFile + " " + artString,
+	  function (error, stdout, stderr) {
+	    if (error) {
+	      util.puts(error);
+	      issue404(response);
+	      return;
+	    }
+	    response.writeHeader(200, {"Content-Type": "text/html; charset=utf-8"});
+	    if (! naked)
+	      writeFile(path.join(clientPath, "client/thread.html"), response);
+	    fs.readFile(cacheFile, "binary", function(err, file) {
+	      response.write(file, "binary");
+	      response.end();
+	    });
+	  });
 }
 
 function writeFile(fpath, response) {
   response.write(fs.readFileSync(fpath, "binary"), "binary");
+}
+
+function outputThumbnail(file, response) {
+  var regs = file.match(/\/thumbnail\/(.*)/);
+  if (! regs || thumbnails > 20) {
+    issue404(response);
+    return;
+  }
+  var url = regs[1];
+  var cache = "/cache/thumbnail" + thumbnailCache(url);
+  util.puts(cache);
+  thumbnails++;
+  util.puts("Number of thumbnails running: " + thumbnails);
+  fs.exists(cache, function(exists) {
+    if (! exists) {
+      cp.execFile(thumbnail, [url, cache],
+		  function(err, stdout, stderr) {
+		    thumbnails--;
+		    if (err) {
+		      util.puts(err);
+		      response.end();
+		      return;
+		    }
+		    outputPng(cache, response);
+		  });
+    } else
+      outputPng(cache, response);
+  });
+}
+
+function outputPng(png, response) {
+  fs.readFile(png, "binary", function(err, file) {
+    if (err) {
+      response.writeHeader(500, 
+			   {"Content-Type": "text/plain"});
+      response.write(err + "\n");
+    } else {
+      response.writeHeader(200,
+			   {"Content-Type": "image/png"});
+      response.write(file, "binary");
+    }
+    response.end();
+  });
+}
+
+function thumbnailCache(url) {
+  var hash = crypto.createHash('md5').update(url).digest("hex");
+  var cache = "";
+  for (var i = 0; i < 4; i++)
+    cache += "/" + hash.substring(i * 8, (i + 1) * 8);
+  return cache;
 }
 
 util.puts("Server Running on 8080");

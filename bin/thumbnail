@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+printf("$url $cache\n");
+
 use File::Path qw(make_path);
 use File::Basename;
 
@@ -23,7 +25,7 @@ system("cutycapt",
 
 if ($? != 0) {
     unlink $out if (-f $out);
-    exit(-1);
+    die $!;
 }
 
 make_path(dirname($cache));
@@ -38,7 +40,7 @@ unlink $out if (-f $out);
 
 if ($? != 0) {
     unlink $cache if (-f $cache);
-    exit(-1);
+    die $!;
 }
 
 exit(0);

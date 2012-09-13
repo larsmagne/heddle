@@ -159,7 +159,7 @@ function addPermalink(div, url) {
 
 function addThumbnail(div, url) {
   var image = new Image();
-  image.src = "http://immediatenet.com/t/m?Size=1024x768&URL=" + url;
+  image.src = "http://read.gwene.org/thumbnail/" + url;
   var link = document.createElement("a");
   link.href = url;
   link.className = "thumbnail";
@@ -171,8 +171,7 @@ function addThumbnail(div, url) {
   };
   image.onload = function() {
     link.innerHTML =
-      "<img src=\"http://immediatenet.com/t/m?Size=1024x768&URL=" +
-      url + "\">";
+      "<img src=\"http://read.gwene.org/thumbnail/" + url + "\">";
   };
 }
 
