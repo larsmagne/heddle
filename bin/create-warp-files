@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+
+open(ACTIVE, "/var/lib/news/active") || die;
+while (<ACTIVE>) {
+    next unless /^gwene/;
+    ($group) = split;
+    print "$group\n";
+    $nov = $group;
+    $nov =~ s/(.)([^.]*)\.?/$1\//g;
+    $nov = "/var/spool/news/overview/$nov/$group.DAT";
+    $warp = $group;
+    $warp =~ s/\./\//g;
+    $warp = "/cache/warp/$warp";
+    if (! -d $warp) {
+	system("mkdir -p $warp");
+    }
+    $warp = "$warp/WARP";
+    system("/home/larsi/src/warp/warp $nov $warp");
+}
