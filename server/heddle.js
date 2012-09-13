@@ -317,7 +317,7 @@ function writeFile(fpath, response) {
 
 function outputThumbnail(file, response) {
   var regs = file.match(/\/thumbnail\/(.*)/);
-  if (! regs || thumbnails > 20) {
+  if (! regs || thumbnails > 100) {
     issue404(response);
     return;
   }
