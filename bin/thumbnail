@@ -29,8 +29,9 @@ system("convert",
        "-crop", "150x94+0+0",
        $out, $cache);
 
+unlink $out if (-f $out);
+
 if ($? != 0) {
-    unlink $out if (-f $out);
     unlink $cache if (-f $cache);
     exit(-1);
 }
