@@ -1,6 +1,6 @@
 var touchp = 'ontouchstart' in window;
 
-function XHR () {
+function XHR() {
   try {
     return new XMLHttpRequest();
   } catch (err) {
@@ -8,7 +8,7 @@ function XHR () {
   }
 }
 
-function getHTML (url, callback) {
+function getHTML(url, callback) {
   var request = XHR();
   request.open("GET", url, true);
   request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -26,7 +26,7 @@ function getHTML (url, callback) {
 var jsonCallbacks = new Array();
 var jsonPart = 1;
 
-function getJSON (url, callback) {
+function getJSON(url, callback) {
   jsonPart++;
   jsonCallbacks[jsonPart] = callback;
   var script = document.createElement("script");
@@ -35,43 +35,43 @@ function getJSON (url, callback) {
   document.getElementsByTagName("BODY")[0].appendChild(script);
 }
 
-function jsonCallback (data) {
+function jsonCallback(data) {
   var callback = jsonCallbacks[data["callback"]];
   if (callback)
     callback(data);
 }
 
-function windowWidth () {
+function windowWidth() {
   return window.innerWidth || document.documentElement.clientWidth ||
     document.body.clientWidth;
 }
 
-function windowHeight () {
+function windowHeight() {
   return window.innerHeight || document.documentElement.clientHeight ||
     document.body.clientHeight;
 }
 
-function windowScrollX () {
+function windowScrollX() {
   return window.pageXOffset || document.body.scrollLeft ||
     document.documentElement.scrollLeft;
 }
 
-function windowScrollY () {
+function windowScrollY() {
   return window.pageYOffset || document.body.scrollTop ||
     document.documentElement.scrollTop;
 }
 
-function documentWidth () {
+function documentWidth() {
   return document.body.scrollWidth || document.body.offsetWidth ||
     document.documentElement.scrollWidth;
 }
 
-function documentHeight () {
+function documentHeight() {
   return document.body.scrollHeight || document.body.offsetHeight ||
     document.documentElement.scrollHeight;
 }
 
-function getElementsByTagAndName (tag, name) {
+function getElementsByTagAndName(tag, name) {
   var tags = document.getElementsByTagName(tag);
   var result = new Array();
   for (var i = 0; i < tags.length; i++) {
@@ -82,7 +82,7 @@ function getElementsByTagAndName (tag, name) {
   return result.reverse();
 }
 
-function findPos (elem) {
+function findPos(elem) {
   var curleft = curtop = 0;
   if (elem.style && elem.style.left)
     return [numberify(elem.style.left), numberify(elem.style.top)];
@@ -96,7 +96,7 @@ function findPos (elem) {
   return [curleft, curtop];
 }
 
-function eventPosition (ev) {
+function eventPosition(ev) {
   var x, y;
   ev = getEvent(ev);
   if (ev.touches && ev.touches.length > 0) {
@@ -119,40 +119,40 @@ function eventPosition (ev) {
   return [x, y];
 }
 
-function eventElement (ev) {
+function eventElement(ev) {
   if (! ev)
     return window.event.srcElement;
   else
     return ev.target;
 }
 
-function makeUndraggable (elem) {
-  elem.onselectstart = function () { return false; }
+function makeUndraggable(elem) {
+  elem.onselectstart = function() { return false; }
   elem.draggable = false;
-  elem.onmousedown = function (ev) {
+  elem.onmousedown = function(ev) {
     if (! ev) ev = window.event;
     try { ev.preventDefault(); } catch (err) {}
     return false;
   };
 }
 
-function disableSelection (elem) {
+function disableSelection(elem) {
   if (typeof elem.onselectstart != "undefined")
     elem.onselectstart = function () { return false; }
   else if (elem.style && typeof elem.style.MozUserSelect != "undefined")
     elem.style.MozUserSelect = "none";
 
-  elem.onmousedown = function () { return false; }
+  elem.onmousedown = function() { return false; }
 }
 
-function getStyle (elem, prop) {
+function getStyle(elem, prop) {
   if (elem.currentStyle)
     return elem.currentStyle[prop];
   else if (window.getComputedStyle)
     return document.defaultView.getComputedStyle(elem,null).getPropertyValue(prop);
 }
 
-function getZIndex (elem) {
+function getZIndex(elem) {
   if (elem.style && elem.style.zIndex)
     return elem.style.zIndex;
   else if (elem.parentNode)
@@ -161,27 +161,27 @@ function getZIndex (elem) {
     return 100;
 }
 
-function getEvent (e) {
+function getEvent(e) {
   if (!e)
     return window.event;
   else
     return e;
 }
 
-function stopPropagation (e) {
+function stopPropagation(e) {
   e = getEvent(e);
   e.cancelBubble = true;
   if (e.stopPropagation)
     e.stopPropagation();
 }
 
-function preventDefault (e) {
+function preventDefault(e) {
   try {
     e.preventDefault();
   } catch(err) {}
 }
 
-function getKey (e) {
+function getKey(e) {
   if (e && e.target) { // Netscape
     return e.keyCode;
   } else { // non-Netscape
@@ -190,33 +190,33 @@ function getKey (e) {
   }
 }
 
-function removeElem (elem) {
+function removeElem(elem) {
   if (elem) {
     if (elem.parentNode)
       elem.parentNode.removeChild(elem);
   }
 }
 
-function removeChildren (elem) {
+function removeChildren(elem) {
   while (elem.childNodes.length > 0)
     elem.removeChild(elem.childNodes[0]);
 }
 
-function parentOfType (elem, type) {
+function parentOfType(elem, type) {
   do {
     elem = elem.parentNode;
   } while (elem && elem.nodeName != type);
   return elem;
 }
 
-function map (list, func) {
+function map(list, func) {
   if (! list)
     return;
   for (var i = 0; i < list.length; i++)
     func(list[i]);
 }
 
-function mapCar (list, func) {
+function mapCar(list, func) {
   var result = new Array();
   if (! list)
     return;
@@ -225,7 +225,7 @@ function mapCar (list, func) {
   return result;
 }
 
-function setCookie (name, value, domain, days, path) {
+function setCookie(name, value, domain, days, path) {
   var today = new Date();
   var expire = new Date();
   if (days == null || days == 0)
@@ -237,7 +237,7 @@ function setCookie (name, value, domain, days, path) {
     ";path=" + escape(path);
 }
 
-function assocGet (name, arr) {
+function assocGet(name, arr) {
   var result = false;
   map(arr,
       function(elem) {
@@ -247,7 +247,7 @@ function assocGet (name, arr) {
   return result;
 }
 
-function plistGet (name, arr) {
+function plistGet(name, arr) {
   for (var i = 0; i < arr.length; i += 2) {
     if (arr[i] == name)
       return arr[i + 1];
@@ -263,7 +263,7 @@ function composeFunction(oldFunc, newFunc) {
   };
 }
 
-function subseq (sequence, from, to) {
+function subseq(sequence, from, to) {
   var result = new Array();
   if (! to)
     to = sequence.length;
@@ -272,7 +272,7 @@ function subseq (sequence, from, to) {
   return result.reverse();
 }
 
-function last (sequence) {
+function last(sequence) {
   return sequence[sequence.length - 1];
 }
 
@@ -286,7 +286,7 @@ function pixelRatio() {
   return window.devicePixelRatio || 1;
 }
 
-function getTextValue (elem) {
+function getTextValue(elem) {
   var text = "";
   for (var i = 0; i < elem.childNodes.length; i++) {
     var child = elem.childNodes[i];
@@ -296,4 +296,12 @@ function getTextValue (elem) {
       text = text + getTextValue(child);
   }
   return text;
+}
+
+function position(arr, value) {
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] == value)
+      return i;
+  }
+  return -1;
 }

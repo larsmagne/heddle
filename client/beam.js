@@ -17,7 +17,7 @@ function decorateHeddle() {
 	  var sub = "pr." + bit.substring(0, i);
 	  if (! prefixTable[sub])
 	    prefixTable[sub] = new Array(group);
-	  else if (prefixTable[sub].indexOf(group) == -1 && 
+	  else if (position(prefixTable[sub], group) == -1 && 
 		   prefixTable[sub].length < 20)
 	    prefixTable[sub].push(group);
 	}
