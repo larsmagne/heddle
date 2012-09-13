@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+use File::Path qw(make_path);
+use File::Basename;
+
 $url = $ARGV[0];
 $cache = $ARGV[1];
 
@@ -22,6 +25,8 @@ if ($? != 0) {
     unlink $out if (-f $out);
     exit(-1);
 }
+
+make_path(dirname($cache));
 
 system("convert", 
        "-trim",
