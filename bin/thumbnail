@@ -1,0 +1,38 @@
+#!/usr/bin/perl
+
+$url = $ARGV[0];
+$cache = $ARGV[1];
+
+if ($cache eq "") {
+    printf("Usage: thumbnail <url> <cache>\n");
+    exit(-1);
+}
+
+exit(-1) unless $url =~ /^http/;
+
+$out = "/tmp/$$.png";
+
+system("cutycapt", 
+       "--min-width=1024",
+       "--min-height=640",
+       "--url=$url",
+       "--out=$out");
+
+if ($? != 0) {
+    unlink $out if (-f $out);
+    exit(-1);
+}
+
+system("convert", 
+       "-trim",
+       "-resize", "150x",
+       "-crop", "150x94+0+0",
+       $out, $cache);
+
+if ($? != 0) {
+    unlink $out if (-f $out);
+    unlink $cache if (-f $cache);
+    exit(-1);
+}
+
+exit(0);
