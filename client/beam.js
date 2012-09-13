@@ -7,6 +7,7 @@ function decorateHeddle() {
   input.onkeyup = function() {
     displayResults(input, results);
   };
+  input.focus();
 
   prefixTable = new Array();
   map(groups, function(group) {
@@ -16,7 +17,8 @@ function decorateHeddle() {
 	  var sub = "pr." + bit.substring(0, i);
 	  if (! prefixTable[sub])
 	    prefixTable[sub] = new Array(group);
-	  else
+	  else if (prefixTable[sub].indexOf(group) == -1 && 
+		   prefixTable[sub].length < 20)
 	    prefixTable[sub].push(group);
 	}
     });
@@ -40,7 +42,7 @@ function extendGroupPage(done) {
   var group = roots.getAttribute("group");
   if (! group)
     return;
-  getHTML("http://localhost:8080/group/" + group + "/" +
+  getHTML("http://read.gwene.org/group/" + group + "/" +
 	  page + "/naked",
 	  function(html) {
 	    var div = document.createElement("div");
@@ -81,7 +83,7 @@ function displayResults(input, results) {
 }
 
 function displayGroup(group) {
-  getHTML("http://localhost:8080/group/" + group + "/0/naked",
+  getHTML("http://read.gwene.org/group/" + group + "/0/naked",
 	  function(html) {
 	    var roots = document.getElementById("roots");
 	    roots.innerHTML = html;
