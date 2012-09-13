@@ -235,7 +235,6 @@ function outputThread(url, response) {
       fs.read(fd, buffer, 0, 8, 0, function(err, bytesRead) {
 	var numberOfRoots = buffer.readUInt32LE(0);
 	var lastArticle = buffer.readUInt32LE(4);
-	util.puts(lastArticle);
 	if (article > lastArticle) {
 	  issue404(response);
 	  return;
@@ -324,7 +323,6 @@ function outputThumbnail(file, response) {
   }
   var url = regs[1];
   var cache = "/cache/thumbnail" + thumbnailCache(url);
-  util.puts(cache);
   thumbnails++;
   util.puts("Number of thumbnails running: " + thumbnails);
   fs.exists(cache, function(exists) {
