@@ -1,8 +1,8 @@
-var root = "/home/larsi/tmp/warp";
-var spool = "/home/larsi/tmp/articles/";
+var root = "/cache/warp";
+var spool = "/var/spool/news/articles/";
 var clientPath = "/home/larsi/src/heddle";
 var woof = "/home/larsi/src/woof/woof";
-var cache = "/var/tmp/woof/";
+var cache = "/cache/woof/";
 
 var util = require("util"),
 http = require("http"),
@@ -11,6 +11,10 @@ url = require("url"),
 fs = require("fs"),
 Buffer = require('buffer').Buffer,
 exec = require('child_process').exec;
+
+process.on('uncaughtException', function(err) {
+	console.log(err);
+    });
 
 function issue404(response) {
   response.writeHeader(404, {"Content-Type": "text/plain"});
@@ -49,7 +53,7 @@ function outputStatic(file, response) {
 
   var full_path = path.join(clientPath, file);
 
-  path.exists(full_path, function(exists) {
+  fs.exists(full_path, function(exists) {
     if (! exists)
       issue404(response);
     else {
@@ -91,7 +95,7 @@ function outputGroup(url, response) {
 
   var warp = path.normalize(root + "/" + group.replace(/\./g, "/") + "/WARP");
 
-  path.exists(warp, function(exists) {
+  fs.exists(warp, function(exists) {
     if (! exists) {
       issue404(response);
       return;
@@ -106,10 +110,9 @@ function outputGroup(url, response) {
       // Find the start of each segment.
       var buffer = new Buffer(8);
       fs.read(fd, buffer, 0, 8, 0, function(err, bytesRead) {
-	var numberOfRoots = buffer.readUInt32LE(0)
-	var lastArticle = buffer.readUInt32LE(4)
-
-	if (page + 2 > numberOfRoots / 30) {
+	var numberOfRoots = buffer.readUInt32LE(0);
+	var lastArticle = buffer.readUInt32LE(4);
+	if (page > numberOfRoots / 30) {
 	  issue404(response);
 	  return;
 	}
@@ -119,6 +122,10 @@ function outputGroup(url, response) {
 		function(err, bytesRead) {
 		  var pageStart = buffer.readUInt32LE(0);
 		  var pageEnd = buffer.readUInt32LE(4);
+		  if (pageEnd == 0) {
+		    issue404(response);
+		    return;
+		  }
 		  buffer = new Buffer(pageEnd - pageStart);
    		  fs.read(fd, buffer, 0, pageEnd - pageStart,
 			  pageStart, function(err, bytesRead) {
@@ -177,9 +184,12 @@ function writeRoots(response, buffer, group, naked) {
     comments--;
 
     response.write("<div class=root>");
-    if (from.length > 0)
-      response.write("<span class=from>" + from + "</span>: ");
-    response.write("<a href=\"/thread/" + group + "/" + rootArticle +
+    if (from.length > 0 && from != "unknown")
+      from = "<span class=from>" + from + "</span>:  ";
+    else
+      from = "";
+
+    response.write(from + "<a href=\"/thread/" + group + "/" + rootArticle +
 		   "\">" +
 		   "<span class=subject>" +
 		   subject + "</span></a>", "binary");
@@ -202,7 +212,7 @@ function outputThread(url, response) {
   var directory = path.normalize(spool + "/" + group.replace(/\./g, "/")
 				 + "/");
 
-  path.exists(warp, function(exists) {
+  fs.exists(warp, function(exists) {
     if (! exists) {
       issue404(response);
       return;
@@ -217,8 +227,9 @@ function outputThread(url, response) {
       // Find the start of each segment.
       var buffer = new Buffer(8);
       fs.read(fd, buffer, 0, 8, 0, function(err, bytesRead) {
-	var numberOfRoots = buffer.readUInt32LE(0)
-	var lastArticle = buffer.readUInt32LE(4)
+	var numberOfRoots = buffer.readUInt32LE(0);
+	var lastArticle = buffer.readUInt32LE(4);
+	util.puts(lastArticle);
 	if (article > lastArticle) {
 	  issue404(response);
 	  return;
@@ -281,6 +292,7 @@ function writeThread(response, buffer, group, naked) {
   var child = exec(woof + " " + cacheFile + " " + artString,
 		   function (error, stdout, stderr) {
 		     if (error) {
+		       util.puts(error);
 		       issue404(response);
 		       return;
 		     }
