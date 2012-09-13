@@ -54,3 +54,6 @@ a.thumbnail {
     width: 154px;
     height: 115px;
 }
+a.thumbnail img {
+   border: 0px;
+}
