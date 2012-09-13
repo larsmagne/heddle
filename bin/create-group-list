@@ -2,7 +2,7 @@
 
 $json = "/home/larsi/src/heddle/client/groups.js";
 
-open(ACTIVE, "/home/larsi/src/heddle/data/gmane-active") || die;
+open(ACTIVE, "/var/lib/news/active") || die;
 open(JSON, ">$json.tmp") || die;
 
 print JSON "var groups = new Array(";
@@ -10,6 +10,7 @@ print JSON "var groups = new Array(";
 $first = 1;
 while (<ACTIVE>) {
     next unless /^gwene/;
+    next if /0000000000/;
     s/^gwene.//;
     ($group) = split;
     if (! $first) {
