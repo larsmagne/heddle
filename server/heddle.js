@@ -293,8 +293,10 @@ function writeThread(response, buffer, group, naked) {
     artString += " " + groupPath + article;
   });
 
-  var cacheFile = cache + group.replace(/\./g, "/") + "/" + rootArticle;
-  fs.exists(warp, function(exists) {
+  var cacheFile = cache + group.replace(/\./g, "/") + "/" +
+      crypto.createHash('md5').update(artString).digest("hex");
+
+  fs.exists(cacheFile, function(exists) {
     if (! exists) {
       cp.exec(woof + " " + cacheFile + " " + artString,
 	      function (error, stdout, stderr) {
