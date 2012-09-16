@@ -294,21 +294,30 @@ function writeThread(response, buffer, group, naked) {
   });
 
   var cacheFile = cache + group.replace(/\./g, "/") + "/" + rootArticle;
-  cp.exec(woof + " " + cacheFile + " " + artString,
-	  function (error, stdout, stderr) {
-	    if (error) {
-	      util.puts(error);
-	      issue404(response);
-	      return;
-	    }
-	    response.writeHeader(200, {"Content-Type": "text/html; charset=utf-8"});
-	    if (! naked)
-	      writeFile(path.join(clientPath, "client/thread.html"), response);
-	    fs.readFile(cacheFile, "binary", function(err, file) {
-	      response.write(file, "binary");
-	      response.end();
-	    });
-	  });
+  fs.exists(warp, function(exists) {
+    if (! exists) {
+      cp.exec(woof + " " + cacheFile + " " + artString,
+	      function (error, stdout, stderr) {
+		if (error) {
+		  util.puts(error);
+		  issue404(response);
+		  return;
+		}
+		response.writeHeader(200, {"Content-Type": "text/html; charset=utf-8"});
+		if (! naked)
+		  writeFile(path.join(clientPath, "client/thread.html"), response);
+		fs.readFile(cacheFile, "binary", function(err, file) {
+		  response.write(file, "binary");
+		  response.end();
+		});
+	      });
+      } else {
+	fs.readFile(cacheFile, "binary", function(err, file) {
+	  response.write(file, "binary");
+	  response.end();
+	});
+      }
+    });
 }
 
 function writeFile(fpath, response) {
