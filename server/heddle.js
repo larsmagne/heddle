@@ -315,11 +315,11 @@ function writeThread(response, buffer, group, naked) {
 		response.writeHeader(200, {"Content-Type": "text/html; charset=utf-8"});
 		writeThreadContents(response, cacheFile, naked);
 	      });
-      } else {
-	util.puts("Serving out cached woof file " + cacheFile);
-	writeThreadContents(response, cacheFile, naked);
+    } else {
+      util.puts("Serving out cached woof file " + cacheFile);
+      writeThreadContents(response, cacheFile, naked);
     }
-    });
+  });
 }
 
 function writeThreadContents(response, cacheFile, naked) {
