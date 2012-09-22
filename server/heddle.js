@@ -293,8 +293,7 @@ function writeThread(response, buffer, group, naked) {
     artString += " " + groupPath + article;
   });
 
-  var cacheFile = cache + group.replace(/\./g, "/") + "/" +
-      crypto.createHash('md5').update(artString).digest("hex");
+  var cacheFile = cache + group.replace(/\./g, "/") + splitHash(artString);
 
   fs.exists(cacheFile, function(exists) {
     if (! exists) {
@@ -314,6 +313,7 @@ function writeThread(response, buffer, group, naked) {
 		});
 	      });
       } else {
+	util.puts("Serving out cached woof file " + cacheFile);
 	fs.readFile(cacheFile, "binary", function(err, file) {
 	  response.write(file, "binary");
 	  response.end();
@@ -333,7 +333,7 @@ function outputThumbnail(file, response) {
     return;
   }
   var url = regs[1];
-  var cache = "/cache/thumbnail" + thumbnailCache(url);
+  var cache = "/cache/thumbnail" + splitHash(url);
   util.puts("Number of thumbnails running: " + thumbnails);
   fs.exists(cache, function(exists) {
     if (! exists) {
@@ -368,7 +368,7 @@ function outputPng(png, response) {
   });
 }
 
-function thumbnailCache(url) {
+function splitHash(url) {
   var hash = crypto.createHash('md5').update(url).digest("hex");
   var cache = "";
   for (var i = 0; i < 4; i++)
