@@ -314,6 +314,8 @@ function writeThread(response, buffer, group, naked) {
 	      });
       } else {
 	util.puts("Serving out cached woof file " + cacheFile);
+	if (! naked)
+	  writeFile(path.join(clientPath, "client/thread.html"), response);
 	fs.readFile(cacheFile, "binary", function(err, file) {
 	  response.write(file, "binary");
 	  response.end();
