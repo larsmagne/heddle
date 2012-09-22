@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+
+$cutoff = $ARGV[0];
+
+open(LOG, "nc news 8002 |") || die;
+
+while (<LOG>) {
+    print;
+    $line = $_;
+    chop;
+    ($time, $article) = split;
+    if ($time le $cutoff &&
+	$article =~ m#/var/spool/news/articles/(gwene/.*)/[0-9]+$#) {
+	$group = $1;
+	$group =~ s#/#.#g;
+	$nov = $group;
+	$nov =~ s/(.)([^.]*)\.?/$1\//g;
+	$nov = "/var/spool/news/overview/$nov/$group.DAT";
+	$warp = $group;
+	$warp =~ s/\./\//g;
+	$warp = "/cache/warp/$warp";
+	if (! -d $warp) {
+	    system("mkdir -p $warp");
+	}
+	$warp = "$warp/WARP";
+	if (! -e $warp ||
+	    (stat($nov))[9] > (stat($warp))[9]) {
+	    print "Warping $group from $nov to $warp\n";
+	    system("/home/larsi/src/warp/warp $nov $warp");
+	}
+    }
+}
