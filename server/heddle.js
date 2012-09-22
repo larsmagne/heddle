@@ -328,15 +328,16 @@ function writeThreadContents(response, cacheFile, naked) {
 		function(err, file) {
 		  response.write(file, "binary");
 		  fs.readFile(cacheFile, "binary", function(err, file) {
-		      response.write(file, "binary");
-		      response.end();
-		    });
+		    response.write(file, "binary");
+		    response.write("<script>addThumbnailToThread();</script>");
+		    response.end();
+		  });
 		});
   } else {
     fs.readFile(cacheFile, "binary", function(err, file) {
-	response.write(file, "binary");
-	response.end();
-      });
+      response.write(file, "binary");
+      response.end();
+    });
   }
 }
 

@@ -157,6 +157,22 @@ function addPermalink(div, url) {
   inner.insertBefore(link, inner.childNodes[0]);
 }
 
+function addThumbnailToThread() {
+  map(document.getElementsByTagName("DIV"),
+      function(div) {
+	if (div.className == "thread") {
+	  var first = true;
+	  map(div.getElementsByTagName("A"),
+	      function(link) {
+		if (first && link.href.match(/^http/)) {
+		  first = false;
+		  addThumbnail(div, link.href);
+		}
+	      });
+	}
+      });
+}
+
 function addThumbnail(div, url) {
   var image = new Image();
   image.src = "http://read.gwene.org/thumbnail/" + url;
