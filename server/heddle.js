@@ -146,16 +146,24 @@ function outputGroup(url, response) {
 }
 
 function writeRoots(response, buffer, group, naked) {
-  var i = 0;
-  var length = buffer.length;
-  var char;
-  var from;
-
   response.writeHeader(200, {"Content-Type":
 			     "text/html; charset=utf-8"});
 
   if (! naked)
-    writeFile(path.join(clientPath, "client/group.html"), response);
+    fs.readFile(path.join(clientPath, "client/group.html"), "binary", 
+		function(err, file) {
+		  response.write(file, "binary");
+		  writeRootContents(response, buffer, group);
+		});
+  else
+    writeRootContents(response, buffer, group);
+}
+
+function writeRootContents(response, buffer, group) {
+  var i = 0;
+  var length = buffer.length;
+  var char;
+  var from;
 
   while (i < length) {
     char = 0;
@@ -305,27 +313,31 @@ function writeThread(response, buffer, group, naked) {
 		  return;
 		}
 		response.writeHeader(200, {"Content-Type": "text/html; charset=utf-8"});
-		if (! naked)
-		  writeFile(path.join(clientPath, "client/thread.html"), response);
-		fs.readFile(cacheFile, "binary", function(err, file) {
-		  response.write(file, "binary");
-		  response.end();
-		});
+		writeThreadContents(response, cacheFile, naked);
 	      });
       } else {
 	util.puts("Serving out cached woof file " + cacheFile);
-	if (! naked)
-	  writeFile(path.join(clientPath, "client/thread.html"), response);
-	fs.readFile(cacheFile, "binary", function(err, file) {
-	  response.write(file, "binary");
-	  response.end();
-	});
-      }
+	writeThreadContents(response, cacheFile, naked);
+    }
     });
 }
 
-function writeFile(fpath, response) {
-  response.write(fs.readFileSync(fpath, "binary"), "binary");
+function writeThreadContents(response, cacheFile, naked) {
+  if (! naked) {
+    fs.readFile(path.join(clientPath, "client/thread.html"), "binary", 
+		function(err, file) {
+		  response.write(file, "binary");
+		  fs.readFile(cacheFile, "binary", function(err, file) {
+		      response.write(file, "binary");
+		      response.end();
+		    });
+		});
+  } else {
+    fs.readFile(cacheFile, "binary", function(err, file) {
+	response.write(file, "binary");
+	response.end();
+      });
+  }
 }
 
 function outputThumbnail(file, response) {
