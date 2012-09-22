@@ -6,10 +6,9 @@ open(LOG, "nc news 8002 |") || die;
 
 while (<LOG>) {
     print;
-    $line = $_;
     chop;
     ($time, $article) = split;
-    if ($time le $cutoff &&
+    if ($time gt $cutoff &&
 	$article =~ m#/var/spool/news/articles/(gwene/.*)/[0-9]+$#) {
 	$group = $1;
 	$group =~ s#/#.#g;
