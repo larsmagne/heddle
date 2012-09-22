@@ -27,7 +27,7 @@ function issue404(response) {
 }
 
 http.createServer(function(request, response) {
-  var file = url.parse(request.url).pathname;
+  var file = request.url;
 
   util.puts(file);
 
