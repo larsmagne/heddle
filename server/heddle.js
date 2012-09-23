@@ -15,6 +15,7 @@ cp = require('child_process'),
 crypto = require('crypto');
 
 var thumbnails = 0;
+var log = fs.createWriteStream("/cache/log/heddle.log", {'flags': 'a'});
 
 process.on('uncaughtException', function(err) {
   console.log(err);
@@ -28,7 +29,10 @@ function issue404(response) {
 
 http.createServer(function(request, response) {
   var file = request.url;
-
+  log.write(new Date().toISOString() + "\t" +
+	    file + "\t" +
+	    request.headers['user-agent'] + "\t" + 
+	    request.connection.address().address + "\n");
   util.puts(file);
 
   if (file == "/")
