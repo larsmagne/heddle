@@ -30,9 +30,9 @@ function issue404(response) {
 http.createServer(function(request, response) {
   var file = request.url;
   log.write(new Date().toISOString() + "\t" +
+	    request.connection.address().address + "\t" + 
 	    file + "\t" +
-	    request.headers['user-agent'] + "\t" + 
-	    request.connection.address().address + "\n");
+	    request.headers['user-agent'] + "\n");
   util.puts(file);
 
   if (file == "/")
