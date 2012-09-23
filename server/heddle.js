@@ -347,11 +347,13 @@ function writeThreadContents(response, cacheFile, naked) {
 
 function outputThumbnail(file, response) {
   var regs = file.match(/\/thumbnail\/(.*)/);
-  if (! regs || thumbnails > 100) {
+  var url = regs[1];
+  if (! regs ||
+      thumbnails > 100 ||
+      ! url.match(/^http/)) {
     issue404(response);
     return;
   }
-  var url = regs[1];
   var cache = "/cache/thumbnail" + splitHash(url);
   util.puts("Number of thumbnails running: " + thumbnails);
   fs.exists(cache, function(exists) {
