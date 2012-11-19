@@ -21,18 +21,24 @@ process.on('uncaughtException', function(err) {
   console.log(err);
 });
 
+function logOutput(response, code, length) {
+  log.write(request.connection.remoteAddress + " - - [" + 
+	    new Date().toISOString() + "] \"GET " +
+	    request.url + "\" " + code + " " + length + " \"" +
+	    request.headers['referer'] + "\" \"" +
+	    request.headers['user-agent'] + "\"\n");
+}
+
 function issue404(response) {
+  logOutput(response, 404, 0);
   response.writeHeader(404, {"Content-Type": "text/plain"});
   response.write("404 Not Found\n");
   response.end();
 }
 
-http.createServer(function(request, response) {
+http.createServer(function(req, response) {
+  request = req;
   var file = request.url;
-  log.write(new Date().toISOString() + "\t" +
-	    request.connection.remoteAddress + "\t" + 
-	    file + "\t" +
-	    request.headers['user-agent'] + "\n");
   util.puts(file);
 
   if (file == "/")
@@ -71,6 +77,7 @@ function outputStatic(file, response) {
 	if (err) {
 	  response.writeHeader(500, {"Content-Type": "text/plain"});
 	  response.write(err + "\n");
+	  logOutput(response, 500, 0);
 	  response.end();
 	} else {
 	  if (full_path.match(/\.html$/))
@@ -84,6 +91,7 @@ function outputStatic(file, response) {
 	  response.writeHeader(200, {"Content-Type": contentType +
 				     " ;charset=utf-8"});
 	  response.write(file, "binary");
+	  logOutput(response, 404, file.length);
 	  response.end();
 	}
       });
@@ -218,6 +226,7 @@ function writeRootContents(response, buffer, group) {
       response.write("<span class=comments>" + comments + " comments</span>");
   }
   response.write("<script>decorateGroup(\"" + group + "\");</script>");
+  logOutput(response, 200, 0);
   response.end();
 }
 
@@ -339,12 +348,14 @@ function writeThreadContents(response, cacheFile, naked) {
 		  fs.readFile(cacheFile, "binary", function(err, file) {
 		    response.write(file, "binary");
 		    response.write("<script>addThumbnailToThread();</script>");
+		    logOutput(response, 200, 0);
 		    response.end();
 		  });
 		});
   } else {
     fs.readFile(cacheFile, "binary", function(err, file) {
       response.write(file, "binary");
+      logOutput(response, 200, file.length);
       response.end();
     });
   }
@@ -369,6 +380,7 @@ function outputThumbnail(file, response) {
 		    thumbnails--;
 		    if (err) {
 		      util.puts(err);
+		      logOutput(response, 500, 0);
 		      response.end();
 		      return;
 		    }
@@ -385,10 +397,12 @@ function outputPng(png, response) {
       response.writeHeader(500, 
 			   {"Content-Type": "text/plain"});
       response.write(err + "\n");
+      logOutput(response, 500, 0);
     } else {
       response.writeHeader(200,
 			   {"Content-Type": "image/png"});
       response.write(file, "binary");
+      logOutput(response, 200, file.length);
     }
     response.end();
   });
