@@ -21,24 +21,23 @@ process.on('uncaughtException', function(err) {
   console.log(err);
 });
 
-function logOutput(response, code, length) {
-  log.write(request.connection.remoteAddress + " - - [" + 
+function logOutput(res, code, length) {
+  log.write(req.connection.remoteAddress + " - - [" + 
 	    new Date().toISOString() + "] \"GET " +
-	    request.url + "\" " + code + " " + length + " \"" +
-	    request.headers['referer'] + "\" \"" +
-	    request.headers['user-agent'] + "\"\n");
+	    req.url + "\" " + code + " " + length + " \"" +
+	    req.headers['referer'] + "\" \"" +
+	    req.headers['user-agent'] + "\"\n");
 }
 
-function issue404(response) {
-  logOutput(response, 404, 0);
-  response.writeHeader(404, {"Content-Type": "text/plain"});
-  response.write("404 Not Found\n");
-  response.end();
+function issue404(res) {
+  logOutput(res, 404, 0);
+  res.writeHeader(404, {"Content-Type": "text/plain"});
+  res.write("404 Not Found\n");
+  res.end();
 }
 
-http.createServer(function(req, response) {
-  request = req;
-  var file = request.url;
+http.createServer(function(req, res) {
+  var file = req.url;
   util.puts(file);
 
   if (file == "/")
@@ -46,22 +45,22 @@ http.createServer(function(req, response) {
 
   try {
     if (file.match(/^\/client/))
-      outputStatic(file, response);
+      outputStatic(file, res);
     else if (file.match(/^\/group/))
-      outputGroup(file, response);
+      outputGroup(file, res);
     else if (file.match(/^\/thread/))
-      outputThread(file, response);
+      outputThread(file, res);
     else if (file.match(/^\/thumbnail/))
-      outputThumbnail(file, response);
+      outputThumbnail(file, res);
     else
-      issue404(response);
+      issue404(res);
   } catch(err) {
     util.puts("Error: "+ err);
-    response.end();
+    res.end();
   }
 }).listen(8080);
 
-function outputStatic(file, response) {
+function outputStatic(file, res) {
   if (file.match(/\.\./)) {
     issue404();
     return;
@@ -71,14 +70,14 @@ function outputStatic(file, response) {
 
   fs.exists(full_path, function(exists) {
     if (! exists)
-      issue404(response);
+      issue404(res);
     else {
       fs.readFile(full_path, "binary", function(err, file) {
 	if (err) {
-	  response.writeHeader(500, {"Content-Type": "text/plain"});
-	  response.write(err + "\n");
-	  logOutput(response, 500, 0);
-	  response.end();
+	  res.writeHeader(500, {"Content-Type": "text/plain"});
+	  res.write(err + "\n");
+	  logOutput(res, 500, 0);
+	  res.end();
 	} else {
 	  if (full_path.match(/\.html$/))
 	    contentType = "text/html";
@@ -88,18 +87,18 @@ function outputStatic(file, response) {
 	    contentType = "image/png";
 	  else
 	    contentType = "text/plain";
-	  response.writeHeader(200, {"Content-Type": contentType +
+	  res.writeHeader(200, {"Content-Type": contentType +
 				     " ;charset=utf-8"});
-	  response.write(file, "binary");
-	  logOutput(response, 404, file.length);
-	  response.end();
+	  res.write(file, "binary");
+	  logOutput(res, 404, file.length);
+	  res.end();
 	}
       });
     }
   });
 }
 
-function outputGroup(url, response) {
+function outputGroup(url, res) {
   var regs = url.match(/\/group\/([^\/]+)(\/([0-9]+)(\/naked)?)?/);
   if (! regs)
     return;
@@ -115,7 +114,7 @@ function outputGroup(url, response) {
 
   fs.exists(warp, function(exists) {
     if (! exists) {
-      issue404(response);
+      issue404(res);
       return;
     }
 
@@ -132,7 +131,7 @@ function outputGroup(url, response) {
 	var lastArticle = buffer.readUInt32LE(4);
 	if (page > numberOfRoots / 30) {
 	  fs.closeSync(fd);
-	  issue404(response);
+	  issue404(res);
 	  return;
 	}
 
@@ -143,13 +142,13 @@ function outputGroup(url, response) {
 		  var pageEnd = buffer.readUInt32LE(4);
 		  if (pageEnd == 0) {
 		    fs.closeSync(fd);
-		    issue404(response);
+		    issue404(res);
 		    return;
 		  }
 		  buffer = new Buffer(pageEnd - pageStart);
    		  fs.read(fd, buffer, 0, pageEnd - pageStart,
 			  pageStart, function(err, bytesRead) {
-			    writeRoots(response, buffer,
+			    writeRoots(res, buffer,
    				       group, naked);
 			    fs.closeSync(fd);
 			  });
@@ -160,21 +159,21 @@ function outputGroup(url, response) {
   });
 }
 
-function writeRoots(response, buffer, group, naked) {
-  response.writeHeader(200, {"Content-Type":
+function writeRoots(res, buffer, group, naked) {
+  res.writeHeader(200, {"Content-Type":
 			     "text/html; charset=utf-8"});
 
   if (! naked)
     fs.readFile(path.join(clientPath, "client/group.html"), "binary", 
 		function(err, file) {
-		  response.write(file, "binary");
-		  writeRootContents(response, buffer, group);
+		  res.write(file, "binary");
+		  writeRootContents(res, buffer, group);
 		});
   else
-    writeRootContents(response, buffer, group);
+    writeRootContents(res, buffer, group);
 }
 
-function writeRootContents(response, buffer, group) {
+function writeRootContents(res, buffer, group) {
   var i = 0;
   var length = buffer.length;
   var char;
@@ -212,25 +211,25 @@ function writeRootContents(response, buffer, group) {
     // Zero-terminated list of articles.
     comments--;
 
-    response.write("<div class=root>");
+    res.write("<div class=root>");
     if (from.length > 0 && from != "unknown")
       from = "<span class=from>" + from + "</span>:  ";
     else
       from = "";
 
-    response.write(from + "<a href=\"/thread/" + group + "/" + rootArticle +
+    res.write(from + "<a href=\"/thread/" + group + "/" + rootArticle +
 		   "\">" +
 		   "<span class=subject>" +
 		   subject + "</span></a>", "binary");
     if (comments > 0)
-      response.write("<span class=comments>" + comments + " comments</span>");
+      res.write("<span class=comments>" + comments + " comments</span>");
   }
-  response.write("<script>decorateGroup(\"" + group + "\");</script>");
-  logOutput(response, 200, 0);
-  response.end();
+  res.write("<script>decorateGroup(\"" + group + "\");</script>");
+  logOutput(res, 200, 0);
+  res.end();
 }
 
-function outputThread(url, response) {
+function outputThread(url, res) {
   var regs = url.match(/\/thread\/([^\/]+)\/([0-9]+)(\/naked)?/);
   if (! regs)
     return;
@@ -244,7 +243,7 @@ function outputThread(url, response) {
 
   fs.exists(warp, function(exists) {
     if (! exists) {
-      issue404(response);
+      issue404(res);
       return;
     }
 
@@ -261,7 +260,7 @@ function outputThread(url, response) {
 	var lastArticle = buffer.readUInt32LE(4);
 	if (article > lastArticle) {
 	  fs.closeSync(fd);
-	  issue404(response);
+	  issue404(res);
 	  return;
 	}
 	// Find the start of the root segment.
@@ -271,7 +270,7 @@ function outputThread(url, response) {
 		  buffer = new Buffer(1024);
    		  fs.read(fd, buffer, 0, 1024,
 			  articleStart, function(err, bytesRead) {
-			    writeThread(response, buffer,
+			    writeThread(res, buffer,
 					group, naked);
 			    fs.closeSync(fd);
 			  });
@@ -281,14 +280,14 @@ function outputThread(url, response) {
   });
 }
 
-function writeThread(response, buffer, group, naked) {
+function writeThread(res, buffer, group, naked) {
   var i = 0;
   var length = buffer.length;
   var char;
   var from;
   var groupPath = spool + group.replace(/\./g, "/") + "/";
 
-  response.writeHeader(200, {"Content-Type":
+  res.writeHeader(200, {"Content-Type":
 			     "text/html; charset=utf-8"});
   // From
   while (buffer.readUInt8(i++) != 10)
@@ -327,47 +326,47 @@ function writeThread(response, buffer, group, naked) {
 	      function (error, stdout, stderr) {
 		if (error) {
 		  util.puts(error);
-		  issue404(response);
+		  issue404(res);
 		  return;
 		}
-		response.writeHeader(200, {"Content-Type": "text/html; charset=utf-8"});
-		writeThreadContents(response, cacheFile, naked);
+		res.writeHeader(200, {"Content-Type": "text/html; charset=utf-8"});
+		writeThreadContents(res, cacheFile, naked);
 	      });
     } else {
       util.puts("Serving out cached woof file " + cacheFile);
-      writeThreadContents(response, cacheFile, naked);
+      writeThreadContents(res, cacheFile, naked);
     }
   });
 }
 
-function writeThreadContents(response, cacheFile, naked) {
+function writeThreadContents(res, cacheFile, naked) {
   if (! naked) {
     fs.readFile(path.join(clientPath, "client/thread.html"), "binary", 
 		function(err, file) {
-		  response.write(file, "binary");
+		  res.write(file, "binary");
 		  fs.readFile(cacheFile, "binary", function(err, file) {
-		    response.write(file, "binary");
-		    response.write("<script>addThumbnailToThread();</script>");
-		    logOutput(response, 200, 0);
-		    response.end();
+		    res.write(file, "binary");
+		    res.write("<script>addThumbnailToThread();</script>");
+		    logOutput(res, 200, 0);
+		    res.end();
 		  });
 		});
   } else {
     fs.readFile(cacheFile, "binary", function(err, file) {
-      response.write(file, "binary");
-      logOutput(response, 200, file.length);
-      response.end();
+      res.write(file, "binary");
+      logOutput(res, 200, file.length);
+      res.end();
     });
   }
 }
 
-function outputThumbnail(file, response) {
+function outputThumbnail(file, res) {
   var regs = file.match(/\/thumbnail\/(.*)/);
   var url = regs[1];
   if (! regs ||
       thumbnails > 100 ||
       ! url.match(/^http/)) {
-    issue404(response);
+    issue404(res);
     return;
   }
   var cache = "/cache/thumbnail" + splitHash(url);
@@ -380,31 +379,31 @@ function outputThumbnail(file, response) {
 		    thumbnails--;
 		    if (err) {
 		      util.puts(err);
-		      logOutput(response, 500, 0);
-		      response.end();
+		      logOutput(res, 500, 0);
+		      res.end();
 		      return;
 		    }
-		    outputPng(cache, response);
+		    outputPng(cache, res);
 		  });
     } else
-      outputPng(cache, response);
+      outputPng(cache, res);
   });
 }
 
-function outputPng(png, response) {
+function outputPng(png, res) {
   fs.readFile(png, "binary", function(err, file) {
     if (err) {
-      response.writeHeader(500, 
+      res.writeHeader(500, 
 			   {"Content-Type": "text/plain"});
-      response.write(err + "\n");
-      logOutput(response, 500, 0);
+      res.write(err + "\n");
+      logOutput(res, 500, 0);
     } else {
-      response.writeHeader(200,
+      res.writeHeader(200,
 			   {"Content-Type": "image/png"});
-      response.write(file, "binary");
-      logOutput(response, 200, file.length);
+      res.write(file, "binary");
+      logOutput(res, 200, file.length);
     }
-    response.end();
+    res.end();
   });
 }
 
