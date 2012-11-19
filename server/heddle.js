@@ -123,6 +123,7 @@ function outputGroup(url, response) {
 	var numberOfRoots = buffer.readUInt32LE(0);
 	var lastArticle = buffer.readUInt32LE(4);
 	if (page > numberOfRoots / 30) {
+	  fs.closeSync(fd);
 	  issue404(response);
 	  return;
 	}
@@ -133,6 +134,7 @@ function outputGroup(url, response) {
 		  var pageStart = buffer.readUInt32LE(0);
 		  var pageEnd = buffer.readUInt32LE(4);
 		  if (pageEnd == 0) {
+		    fs.closeSync(fd);
 		    issue404(response);
 		    return;
 		  }
@@ -141,6 +143,7 @@ function outputGroup(url, response) {
 			  pageStart, function(err, bytesRead) {
 			    writeRoots(response, buffer,
    				       group, naked);
+			    fs.closeSync(fd);
 			  });
 		});
       });
@@ -248,6 +251,7 @@ function outputThread(url, response) {
 	var numberOfRoots = buffer.readUInt32LE(0);
 	var lastArticle = buffer.readUInt32LE(4);
 	if (article > lastArticle) {
+	  fs.closeSync(fd);
 	  issue404(response);
 	  return;
 	}
@@ -260,6 +264,7 @@ function outputThread(url, response) {
 			  articleStart, function(err, bytesRead) {
 			    writeThread(response, buffer,
 					group, naked);
+			    fs.closeSync(fd);
 			  });
 		});
       });
