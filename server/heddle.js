@@ -17,11 +17,11 @@ crypto = require('crypto');
 var thumbnails = 0;
 var log = fs.createWriteStream("/cache/log/heddle.log", {'flags': 'a'});
 
-process.on('uncaughtException', function(err) {
-  console.log(err);
-});
+//process.on('uncaughtException', function(err) {
+//  console.log(err);
+//});
 
-function logOutput(res, code, length) {
+function logOutput(req, code, length) {
   log.write(req.connection.remoteAddress + " - - [" + 
 	    new Date().toISOString() + "] \"GET " +
 	    req.url + "\" " + code + " " + length + " \"" +
@@ -29,8 +29,8 @@ function logOutput(res, code, length) {
 	    req.headers['user-agent'] + "\"\n");
 }
 
-function issue404(res) {
-  logOutput(res, 404, 0);
+function issue404(req, res) {
+  logOutput(req, 404, 0);
   res.writeHeader(404, {"Content-Type": "text/plain"});
   res.write("404 Not Found\n");
   res.end();
@@ -45,13 +45,13 @@ http.createServer(function(req, res) {
 
   try {
     if (file.match(/^\/client/))
-      outputStatic(file, res);
+      outputStatic(file, req, res);
     else if (file.match(/^\/group/))
-      outputGroup(file, res);
+      outputGroup(file, req, res);
     else if (file.match(/^\/thread/))
-      outputThread(file, res);
+      outputThread(file, req, res);
     else if (file.match(/^\/thumbnail/))
-      outputThumbnail(file, res);
+      outputThumbnail(file, req, res);
     else
       issue404(res);
   } catch(err) {
@@ -60,9 +60,9 @@ http.createServer(function(req, res) {
   }
 }).listen(8080);
 
-function outputStatic(file, res) {
+function outputStatic(file, req, res) {
   if (file.match(/\.\./)) {
-    issue404();
+    issue404(req, res);
     return;
   }
 
@@ -70,13 +70,13 @@ function outputStatic(file, res) {
 
   fs.exists(full_path, function(exists) {
     if (! exists)
-      issue404(res);
+      issue404(req, res);
     else {
       fs.readFile(full_path, "binary", function(err, file) {
 	if (err) {
 	  res.writeHeader(500, {"Content-Type": "text/plain"});
 	  res.write(err + "\n");
-	  logOutput(res, 500, 0);
+	  logOutput(req, 500, 0);
 	  res.end();
 	} else {
 	  if (full_path.match(/\.html$/))
@@ -90,7 +90,7 @@ function outputStatic(file, res) {
 	  res.writeHeader(200, {"Content-Type": contentType +
 				     " ;charset=utf-8"});
 	  res.write(file, "binary");
-	  logOutput(res, 404, file.length);
+	  logOutput(req, 200, file.length);
 	  res.end();
 	}
       });
@@ -98,7 +98,7 @@ function outputStatic(file, res) {
   });
 }
 
-function outputGroup(url, res) {
+function outputGroup(url, req, res) {
   var regs = url.match(/\/group\/([^\/]+)(\/([0-9]+)(\/naked)?)?/);
   if (! regs)
     return;
@@ -114,7 +114,7 @@ function outputGroup(url, res) {
 
   fs.exists(warp, function(exists) {
     if (! exists) {
-      issue404(res);
+      issue404(req, res);
       return;
     }
 
@@ -131,7 +131,7 @@ function outputGroup(url, res) {
 	var lastArticle = buffer.readUInt32LE(4);
 	if (page > numberOfRoots / 30) {
 	  fs.closeSync(fd);
-	  issue404(res);
+	  issue404(req, res);
 	  return;
 	}
 
@@ -142,13 +142,13 @@ function outputGroup(url, res) {
 		  var pageEnd = buffer.readUInt32LE(4);
 		  if (pageEnd == 0) {
 		    fs.closeSync(fd);
-		    issue404(res);
+		    issue404(req, res);
 		    return;
 		  }
 		  buffer = new Buffer(pageEnd - pageStart);
    		  fs.read(fd, buffer, 0, pageEnd - pageStart,
 			  pageStart, function(err, bytesRead) {
-			    writeRoots(res, buffer,
+			    writeRoots(req, res, buffer,
    				       group, naked);
 			    fs.closeSync(fd);
 			  });
@@ -159,21 +159,21 @@ function outputGroup(url, res) {
   });
 }
 
-function writeRoots(res, buffer, group, naked) {
+function writeRoots(req, res, buffer, group, naked) {
   res.writeHeader(200, {"Content-Type":
-			     "text/html; charset=utf-8"});
+	"text/html; charset=utf-8"});
 
   if (! naked)
     fs.readFile(path.join(clientPath, "client/group.html"), "binary", 
 		function(err, file) {
 		  res.write(file, "binary");
-		  writeRootContents(res, buffer, group);
+		  writeRootContents(req, res, buffer, group);
 		});
   else
-    writeRootContents(res, buffer, group);
+    writeRootContents(req, res, buffer, group);
 }
 
-function writeRootContents(res, buffer, group) {
+function writeRootContents(req, res, buffer, group) {
   var i = 0;
   var length = buffer.length;
   var char;
@@ -218,18 +218,18 @@ function writeRootContents(res, buffer, group) {
       from = "";
 
     res.write(from + "<a href=\"/thread/" + group + "/" + rootArticle +
-		   "\">" +
-		   "<span class=subject>" +
-		   subject + "</span></a>", "binary");
+	      "\">" +
+	      "<span class=subject>" +
+	      subject + "</span></a>", "binary");
     if (comments > 0)
       res.write("<span class=comments>" + comments + " comments</span>");
   }
   res.write("<script>decorateGroup(\"" + group + "\");</script>");
-  logOutput(res, 200, 0);
+  logOutput(req, 200, 0);
   res.end();
 }
 
-function outputThread(url, res) {
+function outputThread(url, req, res) {
   var regs = url.match(/\/thread\/([^\/]+)\/([0-9]+)(\/naked)?/);
   if (! regs)
     return;
@@ -243,7 +243,7 @@ function outputThread(url, res) {
 
   fs.exists(warp, function(exists) {
     if (! exists) {
-      issue404(res);
+      issue404(req, res);
       return;
     }
 
@@ -260,7 +260,7 @@ function outputThread(url, res) {
 	var lastArticle = buffer.readUInt32LE(4);
 	if (article > lastArticle) {
 	  fs.closeSync(fd);
-	  issue404(res);
+	  issue404(req, res);
 	  return;
 	}
 	// Find the start of the root segment.
@@ -270,7 +270,7 @@ function outputThread(url, res) {
 		  buffer = new Buffer(1024);
    		  fs.read(fd, buffer, 0, 1024,
 			  articleStart, function(err, bytesRead) {
-			    writeThread(res, buffer,
+			    writeThread(req, res, buffer,
 					group, naked);
 			    fs.closeSync(fd);
 			  });
@@ -280,7 +280,7 @@ function outputThread(url, res) {
   });
 }
 
-function writeThread(res, buffer, group, naked) {
+function writeThread(req, res, buffer, group, naked) {
   var i = 0;
   var length = buffer.length;
   var char;
@@ -326,20 +326,20 @@ function writeThread(res, buffer, group, naked) {
 	      function (error, stdout, stderr) {
 		if (error) {
 		  util.puts(error);
-		  issue404(res);
+		  issue404(req, res);
 		  return;
 		}
 		res.writeHeader(200, {"Content-Type": "text/html; charset=utf-8"});
-		writeThreadContents(res, cacheFile, naked);
+		writeThreadContents(req, res, cacheFile, naked);
 	      });
     } else {
       util.puts("Serving out cached woof file " + cacheFile);
-      writeThreadContents(res, cacheFile, naked);
+      writeThreadContents(req, res, cacheFile, naked);
     }
   });
 }
 
-function writeThreadContents(res, cacheFile, naked) {
+function writeThreadContents(req, res, cacheFile, naked) {
   if (! naked) {
     fs.readFile(path.join(clientPath, "client/thread.html"), "binary", 
 		function(err, file) {
@@ -347,26 +347,26 @@ function writeThreadContents(res, cacheFile, naked) {
 		  fs.readFile(cacheFile, "binary", function(err, file) {
 		    res.write(file, "binary");
 		    res.write("<script>addThumbnailToThread();</script>");
-		    logOutput(res, 200, 0);
+		    logOutput(req, 200, 0);
 		    res.end();
 		  });
 		});
   } else {
     fs.readFile(cacheFile, "binary", function(err, file) {
       res.write(file, "binary");
-      logOutput(res, 200, file.length);
+      logOutput(req, 200, file.length);
       res.end();
     });
   }
 }
 
-function outputThumbnail(file, res) {
+function outputThumbnail(file, req, res) {
   var regs = file.match(/\/thumbnail\/(.*)/);
   var url = regs[1];
   if (! regs ||
       thumbnails > 100 ||
       ! url.match(/^http/)) {
-    issue404(res);
+    issue404(req, res);
     return;
   }
   var cache = "/cache/thumbnail" + splitHash(url);
@@ -379,29 +379,29 @@ function outputThumbnail(file, res) {
 		    thumbnails--;
 		    if (err) {
 		      util.puts(err);
-		      logOutput(res, 500, 0);
+		      logOutput(req, 500, 0);
 		      res.end();
 		      return;
 		    }
-		    outputPng(cache, res);
+		    outputPng(cache, req, res);
 		  });
     } else
-      outputPng(cache, res);
+      outputPng(cache, req, res);
   });
 }
 
-function outputPng(png, res) {
+function outputPng(png, req, res) {
   fs.readFile(png, "binary", function(err, file) {
     if (err) {
       res.writeHeader(500, 
 			   {"Content-Type": "text/plain"});
       res.write(err + "\n");
-      logOutput(res, 500, 0);
+      logOutput(req, 500, 0);
     } else {
       res.writeHeader(200,
 			   {"Content-Type": "image/png"});
       res.write(file, "binary");
-      logOutput(res, 200, file.length);
+      logOutput(req, 200, file.length);
     }
     res.end();
   });
