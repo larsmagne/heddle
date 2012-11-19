@@ -17,15 +17,48 @@ crypto = require('crypto');
 var thumbnails = 0;
 var log = fs.createWriteStream("/cache/log/heddle.log", {'flags': 'a'});
 
-//process.on('uncaughtException', function(err) {
-//  console.log(err);
-//});
+process.on('uncaughtException', function(err) {
+  console.log(err);
+});
+
+function pad(number) {
+  if (number < 10)
+    return "0" + number;
+  else
+    return number;
+}
+
+function timezone(minutes) {
+  var zone = Math.abs(minutes) / 60 * 100;
+  if (zone < 1000)
+    zone = "0" + zone;
+  if (minutes < 0)
+    return "+" + zone;
+  else
+    return "-" + zone;
+}
+
+function apacheDateString() {
+  var date = new Date();
+  var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return pad(date.getDate()) + "/" + 
+    months[date.getMonth()] + "/" +
+    date.getFullYear() + ":" +
+    pad(date.getHours()) + ":" +
+    pad(date.getMinutes()) + ":" +
+    pad(date.getSeconds()) + " " +
+    timezone(date.getTimezoneOffset());
+}
 
 function logOutput(req, code, length) {
+  var referrer = req.headers['referer'];
+  if (! referrer)
+    referrer = "";
   log.write(req.connection.remoteAddress + " - - [" + 
-	    new Date().toISOString() + "] \"GET " +
+	    apacheDateString() + "] \"GET " +
 	    req.url + "\" " + code + " " + length + " \"" +
-	    req.headers['referer'] + "\" \"" +
+	    referrer + "\" \"" +
 	    req.headers['user-agent'] + "\"\n");
 }
 
