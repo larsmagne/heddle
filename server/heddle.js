@@ -86,7 +86,7 @@ http.createServer(function(req, res) {
     else if (file.match(/^\/thumbnail/))
       outputThumbnail(file, req, res);
     else
-      issue404(res);
+      issue404(req, res);
   } catch(err) {
     util.puts("Error: "+ err);
     res.end();
