@@ -255,7 +255,9 @@ function writeRootContents(req, res, buffer, group) {
 	      "<span class=subject>" +
 	      subject + "</span></a>", "binary");
     if (comments > 0)
-      res.write("<span class=comments>" + comments + " comments</span>");
+      res.write("<span class=comments>" + comments + " comment" + 
+		(comments == 1? "": "s") +
+		"</span>");
   }
   res.write("<script>decorateGroup(\"" + group + "\");</script>");
   logOutput(req, 200, 0);
